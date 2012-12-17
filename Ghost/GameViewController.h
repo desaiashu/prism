@@ -18,6 +18,7 @@
 	//Variable to save whether the game is being created
 	BOOL new;
 	
+	NSString *friendFullName;
 	NSString *playerName;
 	NSString *opponentName;
 	

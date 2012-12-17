@@ -27,18 +27,17 @@
 	self.tabBarController.navigationItem.title = @"NEW GAME";
 	
 	//Set new friends to 0 and set badge value to nil (when the view is being shown these are reset)
+	int diff = [self.tabBarItem.badgeValue intValue];
 	newFriends = 0;
 	self.tabBarItem.badgeValue = nil;
+	int numFriends = [[NSUserDefaults standardUserDefaults] integerForKey:@"numFriends"]+diff;
+	[[NSUserDefaults standardUserDefaults] setInteger:numFriends forKey:@"numFriends"];
 }
 
 - (void)refresh
 {
 	//Refresh tabBarController to reload games
 	[(TabBarController*)self.tabBarController refresh];
-	
-	//Set new friends to 0 and set badge value to nil (when the view is being shown these are reset)
-	newFriends = 0;
-	self.tabBarItem.badgeValue = nil;
 }
 
 //Methods for pull to refresh, will automatically call "refresh" when pulled

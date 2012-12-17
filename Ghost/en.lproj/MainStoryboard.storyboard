@@ -701,7 +701,7 @@
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" id="GK6-pU-2jC">
                                 <rect key="frame" x="0.0" y="10" width="320" height="426"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                <mutableString key="text">You and your opponent take turns choosing letters, these letters will form the start of a word.
+                                <string key="text">You and your opponent take turns choosing letters, these letters will form the start of a word.
 
 You do not want to complete the word. If your opponent completes a word, tap challenge and you win the round. Words less than 4 letters long do not count as complete words.
 
@@ -716,7 +716,7 @@ BALL - Tap Challenge, ball is a complete word
 
 Have fun playing!
 
-Interested in building your own iPhone game? Check out our website at www.makegameswith.us</mutableString>
+Interested in building your own iPhone game? Check out our website at www.makegameswith.us</string>
                                 <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                 <fontDescription key="fontDescription" name="Helvetica" family="Helvetica" pointSize="14"/>
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
@@ -828,7 +828,7 @@ Interested in building your own iPhone game? Check out our website at www.makega
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="vIg-3S-kkK" sceneMemberID="firstResponder"/>
-                <searchDisplayController id="gzx-nn-TPW">
+                <searchDisplayController id="gzx-nn-TPW" customClass="SearchDisplayController">
                     <connections>
                         <outlet property="delegate" destination="MKn-rV-VTR" id="8LX-hM-J99"/>
                         <outlet property="searchBar" destination="0Cm-DZ-zFi" id="82G-rY-PSz"/>
@@ -857,12 +857,111 @@ Interested in building your own iPhone game? Check out our website at www.makega
         <image name="fbdefault.png" width="126" height="126"/>
         <image name="refresh_icon.png" width="25" height="26"/>
     </resources>
+    <classes>
+        <class className="ChatViewController" superclassName="UIViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/ChatViewController.h"/>
+            <relationships>
+                <relationship kind="action" name="refresh:"/>
+                <relationship kind="action" name="send:"/>
+                <relationship kind="outlet" name="message" candidateClass="UITextField"/>
+                <relationship kind="outlet" name="refreshButton" candidateClass="UIBarButtonItem"/>
+                <relationship kind="outlet" name="tView" candidateClass="UITableView"/>
+            </relationships>
+        </class>
+        <class className="DefinitionViewController" superclassName="UIViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/DefinitionViewController.h"/>
+            <relationships>
+                <relationship kind="outlet" name="textView" candidateClass="UITextView"/>
+            </relationships>
+        </class>
+        <class className="GameViewController" superclassName="UIViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/GameViewController.h"/>
+            <relationships>
+                <relationship kind="action" name="moreGames:"/>
+                <relationship kind="action" name="re:"/>
+                <relationship kind="action" name="smackTalk:"/>
+                <relationship kind="outlet" name="chatButton" candidateClass="UIBarButtonItem"/>
+                <relationship kind="outlet" name="define" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="divider" candidateClass="UIView"/>
+                <relationship kind="outlet" name="lastResult" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="lastWord" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="me" candidateClass="UIImageView"/>
+                <relationship kind="outlet" name="moreGames" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="opponentScore" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="otherGuy" candidateClass="UIImageView"/>
+                <relationship kind="outlet" name="otherPlayer" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="play" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="player" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="playerScore" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="re" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="smackTalk" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="vs" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="word" candidateClass="UILabel"/>
+            </relationships>
+        </class>
+        <class className="GamesViewController" superclassName="UIViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/GamesViewController.h"/>
+            <relationships>
+                <relationship kind="action" name="newGame:"/>
+                <relationship kind="outlet" name="tView" candidateClass="UITableView"/>
+            </relationships>
+        </class>
+        <class className="GuessViewController" superclassName="UIViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/GuessViewController.h"/>
+            <relationships>
+                <relationship kind="action" name="challenge:"/>
+                <relationship kind="outlet" name="challenge" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="letter" candidateClass="UITextField"/>
+                <relationship kind="outlet" name="time" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="underline" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="word" candidateClass="UILabel"/>
+            </relationships>
+        </class>
+        <class className="InviteViewController" superclassName="UIViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/InviteViewController.h"/>
+            <relationships>
+                <relationship kind="outlet" name="searchBar" candidateClass="UISearchBar"/>
+                <relationship kind="outlet" name="tView" candidateClass="UITableView"/>
+            </relationships>
+        </class>
+        <class className="MenuViewController" superclassName="UIViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/MenuViewController.h"/>
+            <relationships>
+                <relationship kind="action" name="moreGames:"/>
+                <relationship kind="outlet" name="moreGames" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="play" candidateClass="UIButton"/>
+            </relationships>
+        </class>
+        <class className="NavigationController" superclassName="UINavigationController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/NavigationController.h"/>
+        </class>
+        <class className="PlayersViewController" superclassName="UIViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/PlayersViewController.h"/>
+            <relationships>
+                <relationship kind="action" name="inviteFriends:"/>
+                <relationship kind="outlet" name="searchbox" candidateClass="UITextField"/>
+                <relationship kind="outlet" name="tView" candidateClass="UITableView"/>
+            </relationships>
+        </class>
+        <class className="SearchDisplayController" superclassName="UISearchDisplayController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/SearchDisplayController.h"/>
+        </class>
+        <class className="StyledButton" superclassName="UIButton">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/StyledButton.h"/>
+        </class>
+        <class className="TabBarController" superclassName="UITabBarController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/TabBarController.h"/>
+        </class>
+        <class className="TableViewCell" superclassName="UITableViewCell">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/TableViewCell.h"/>
+        </class>
+    </classes>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar"/>
         <simulatedOrientationMetrics key="orientation"/>
         <simulatedScreenMetrics key="destination"/>
     </simulatedMetricsContainer>
     <inferredMetricsTieBreakers>
-        <segue reference="L4U-Ok-A2r"/>
+        <segue reference="tcv-UC-ICj"/>
     </inferredMetricsTieBreakers>
 </document>

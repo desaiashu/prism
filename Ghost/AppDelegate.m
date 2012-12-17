@@ -50,43 +50,53 @@ NSMutableArray *words;
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
     [MGWU gotPush:userInfo];
 	
-	//Auto refresh views when a message or move has been received
-	//If move has been received
-	if ([[userInfo allKeys] containsObject:@"gameid"])
+	if ([UIApplication sharedApplication].applicationState == UIApplicationStateActive)
 	{
-		UINavigationController *nc = (UINavigationController*) self.window.rootViewController;
-		UIViewController *vc = nc.topViewController;
-		
-		if ([UIApplication sharedApplication].applicationState == UIApplicationStateActive)
+		//Auto refresh views when a message or move has been received
+		//If move has been received
+		if ([[userInfo allKeys] containsObject:@"gameid"])
 		{
+			UINavigationController *nc = (UINavigationController*) self.window.rootViewController;
+			UIViewController *vc = nc.topViewController;
+			
 			//If the current view displayed is the tab bar controller, refresh list of games
 			if ([vc isMemberOfClass:[TabBarController class]])
+			{
 				[(TabBarController*)vc refresh];
+			}
+			//Else if current view is in game, refresh the game
+			else if ([vc isMemberOfClass:[GameViewController class]])
+			{
+				GameViewController *gvc = (GameViewController*)vc;
+				if ([[gvc.game objectForKey:@"gameid"] isEqualToNumber:[userInfo objectForKey:@"gameid"]])
+					[gvc refresh];
+			}
 		}
-		//Else if current view is in game, refresh the game
-		else if ([vc isMemberOfClass:[GameViewController class]])
+		//If message has been received
+		else if ([[userInfo allKeys] containsObject:@"from"])
 		{
-			GameViewController *gvc = (GameViewController*)vc;
-			if ([[gvc.game objectForKey:@"gameid"] isEqualToNumber:[userInfo objectForKey:@"gameid"]])
-				[gvc refresh];
-		}
-	}
-	//If message has been received
-	else if ([[userInfo allKeys] containsObject:@"from"])
-	{
-		UINavigationController *nc = (UINavigationController*) self.window.rootViewController;
-		UIViewController *vc = nc.topViewController;
-		
-		if ([UIApplication sharedApplication].applicationState == UIApplicationStateActive)
-		{
+			UINavigationController *nc = (UINavigationController*) self.window.rootViewController;
+			UIViewController *vc = nc.topViewController;
+			
 			//If the current view is in the chat, refresh the chat
-			if ([vc isMemberOfClass:[ChatViewController class]])
+			if ([vc isMemberOfClass:[TabBarController class]])
+			{
+				[(TabBarController*)vc refresh];
+			}
+			else if ([vc isMemberOfClass:[ChatViewController class]])
 			{
 				ChatViewController *cvc = (ChatViewController*)vc;
 				if ([cvc.friendId isEqualToString:[userInfo objectForKey:@"from"]])
 					[cvc refresh];
 			}
 		}
+	}
+	else
+	{
+		if ([[userInfo allKeys] containsObject:@"gameid"])
+			[MGWU logEvent:@"push_clicked" withParams:@{@"type":@"move"}];
+		else if ([[userInfo allKeys] containsObject:@"from"])
+			[MGWU logEvent:@"push_clicked" withParams:@{@"type":@"message"}];
 	}
 }
 

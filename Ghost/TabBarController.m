@@ -97,13 +97,15 @@
 	
 	NSArray *playingFriends = [NSArray arrayWithArray:pvc.players];
 	
-	//Set badge number for new friends when they join the game
-	int numOldFriends = [[NSUserDefaults standardUserDefaults] integerForKey:@"numFriends"];
-	int numNewFriends = [pvc.players count];
-	[[NSUserDefaults standardUserDefaults] setInteger:numNewFriends forKey:@"numFriends"];
-	if (numNewFriends > numOldFriends)
+	if (!self.selectedIndex == 1)
 	{
-		pvc.newFriends += numNewFriends-numOldFriends;
+		//Set badge number for new friends when they join the game
+		int numOldFriends = [[NSUserDefaults standardUserDefaults] integerForKey:@"numFriends"];
+		int numNewFriends = [pvc.players count];
+		if (numNewFriends > numOldFriends)
+		{
+			pvc.newFriends = numNewFriends-numOldFriends;
+		}
 	}
 	
 	//Some open graph magic

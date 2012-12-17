@@ -104,6 +104,8 @@
 {
 	//Update game object and reload game
 	game = g;
+	if (friendFullName)
+		[game setObject:friendFullName forKey:@"friendName"];
 	[self loadGame];
 }
 
@@ -145,7 +147,8 @@
 		
 		if ([[game allKeys] containsObject:@"friendName"])
 		{
-			opponentName = [TableViewCell shortName:[game objectForKey:@"friendName"]];
+			friendFullName = [game objectForKey:@"friendName"];
+			opponentName = [TableViewCell shortName:friendFullName];
 			playerName = [TableViewCell shortName:[user objectForKey:@"name"]];
 		}
 		else
@@ -259,12 +262,7 @@
 		
 		NSDictionary *gameData = @{@"word":letter, [user objectForKey:@"username"]:@"", opponent:@"", @"lastword":@"", @"lastresult":@"", @"lastdefinition":@""};
 		
-		NSString *pushMessage;
-		
-		if ([[game allKeys] containsObject:@"friendName"])
-			pushMessage = [NSString stringWithFormat:@"%@ began a game with you", [user objectForKey:@"name"]];
-		else
-			pushMessage = [NSString stringWithFormat:@"%@ began a game with you", [user objectForKey:@"username"]];
+		NSString *pushMessage = [NSString stringWithFormat:@"%@ began a game with you", playerName];
 		
 		[MGWU move:move withMoveNumber:0 forGame:0 withGameState:@"started" withGameData:gameData againstPlayer:opponent withPushNotificationMessage:pushMessage withCallback:@selector(moveCompleted:) onTarget:self];
 		
