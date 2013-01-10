@@ -84,7 +84,7 @@
 	
 	UILabel *l = [[UILabel alloc] initWithFrame:CGRectMake(5, 5, 310, 28)];
 	l.textColor = [UIColor colorWithRed:(223.0/256.0) green:(228.0/256.0) blue:(227.0/256.0) alpha:1.0];
-	l.font = [UIFont fontWithName:@"NEXA BOLD" size:28.0];
+	l.font = [UIFont fontWithName:@"Nexa Bold" size:28.0];
 	l.backgroundColor = [UIColor clearColor];
 	if (section == 0)
 		l.text = @"RANDOM PLAYERS";
@@ -127,9 +127,6 @@
 //The sectionIndexTitles are for the scroll bar on the right (such as in the iPod app), only kick into gear if you have more than 20 friends playing the app
 - (NSArray *)sectionIndexTitlesForTableView:(UITableView *)tableView {
     NSMutableArray *charactersForSort = [[NSMutableArray alloc] init];
-	
-	if ([players count] < 20)
-		return charactersForSort;
 	
 	[charactersForSort addObject:@"#"];
 	for (NSDictionary *item in players)
@@ -298,8 +295,8 @@
     GameViewController *gvc = [self.storyboard instantiateViewControllerWithIdentifier:@"GameViewController"];
 	gvc.opponent = [p objectForKey:@"username"];
 	//FIX THIS LATER TO CHECK IF USER IS FRIEND
-	gvc.opponentName = [TableViewCell shortName:[p objectForKey:@"username"]];
-	gvc.playerName = [TableViewCell shortName:[user objectForKey:@"username"]];
+	gvc.opponentName = [p objectForKey:@"username"];
+	gvc.playerName = [user objectForKey:@"username"];
 	[self.navigationController pushViewController:gvc animated:YES];
 }
 
@@ -345,6 +342,9 @@
 			if([view respondsToSelector:@selector(setIndexColor:)])
 				[view performSelector:@selector(setIndexColor:) withObject:[UIColor whiteColor]];
 	}
+	
+	//Only show section index (letter scroll bar on right) if you have 20+ rows
+	tView.sectionIndexMinimumDisplayRowCount = 20;
 		
 }
 

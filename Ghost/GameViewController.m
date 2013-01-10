@@ -33,6 +33,8 @@
 		//When view is created, set inChat to false
 		inChat = false;
 		inGuess = false;
+		challengeReason = nil;
+		challengeOutcome = nil;
     }
     return self;
 }
@@ -48,11 +50,6 @@
 	[chatButton setBackgroundVerticalPositionAdjustment:4.0 forBarMetrics:UIBarMetricsDefault];
 	[chatButton setTitlePositionAdjustment:UIOffsetMake(2.0, 0) forBarMetrics:UIBarMetricsDefault];
 	
-	if (game && [[game objectForKey:@"newmessages"] intValue] > 0)		
-		chatButton.title = [NSString stringWithFormat:@"%@", [game objectForKey:@"newmessages"]];
-	else
-		chatButton.title = @"";
-	
 	UIBarButtonItem *backButton = [[UIBarButtonItem alloc] initWithTitle:@" " style:UIBarButtonItemStylePlain target:nil action:nil];
 	self.navigationItem.backBarButtonItem = backButton;
 	
@@ -63,11 +60,8 @@
 	if (![MGWU isFriend:opponent])
 		[smackTalk setHidden:YES];
 	
-	vs.font = [UIFont fontWithName:@"Nexa Bold" size:40.0];
 	player.text = [TableViewCell shortName:[user objectForKey:@"name"]];
 	otherPlayer.text = opponentName;
-	player.font = [UIFont fontWithName:@"Nexa Bold" size:18.0];
-	otherPlayer.font = [UIFont fontWithName:@"Nexa Bold" size:18.0];
 	
 	//Set images to default images, then load them asynchronously
 //	otherGuy.image = [UIImage imageNamed:@"fbdefault.png"];
@@ -103,9 +97,18 @@
 - (void)gotGame:(NSMutableDictionary*)g
 {
 	//Update game object and reload game
-	game = g;
-	if (friendFullName)
-		[game setObject:friendFullName forKey:@"friendName"];
+	NSString *gameID = [NSString stringWithFormat:@"%@",[game objectForKey:@"gameid"]];
+	NSMutableDictionary *savedGame = [NSMutableDictionary dictionaryWithDictionary:[MGWU objectForKey:gameID]];
+	if ([savedGame isEqualToDictionary:@{}])
+	{
+		game = g;
+		if (friendFullName)
+			[game setObject:friendFullName forKey:@"friendName"];
+	}
+	else
+	{
+		[game setObject:[g objectForKey:@"newmessages"] forKey:@"newmessages"];
+	}
 	[self loadGame];
 }
 
@@ -170,13 +173,9 @@
 		{
 			opponentScore.text = [opponentScore.text stringByAppendingString:@">"];
 		}
-		playerScore.font = [UIFont fontWithName:@"ghosty" size:20.0];
-		opponentScore.font = [UIFont fontWithName:@"ghosty" size:20.0];
 		
 		lastWord.text = [gameData objectForKey:@"lastword"];
-		lastWord.font = [UIFont fontWithName:@"Nexa Bold" size:18.0];
 		lastResult.text = [gameData objectForKey:@"lastresult"];
-		lastResult.font = [UIFont fontWithName:@"Nexa Bold" size:18.0];
 		
 		if ([[gameData objectForKey:@"lastdefinition"] isEqualToString:@""])
 		{
@@ -237,9 +236,13 @@
 			self.navigationItem.title = @"YOUR TURN";
 		}
 		word.text = [word.text uppercaseString];
-		word.font = [UIFont fontWithName:@"ghosty" size:40.0];
 	
 	}
+	
+	if (game && [[game objectForKey:@"newmessages"] intValue] > 0)
+		chatButton.title = [NSString stringWithFormat:@"%@", [game objectForKey:@"newmessages"]];
+	else
+		chatButton.title = @"";
 }
 
 - (void)quit
@@ -257,6 +260,9 @@
 			gvc = nil;
 			return;
 		}
+		
+		challengeReason = nil;
+		challengeOutcome = nil;
 		
 		NSDictionary *move = @{@"letter":letter};
 		
@@ -278,15 +284,14 @@
 		{
 			NSString *challengedWord = [[oldGameData objectForKey:@"word"] stringByReplacingOccurrencesOfString:@" " withString:@""];
 			
+			oldWord = challengedWord;
+			
 			if ([challengedWord length] < 2)
 			{
 				[self dismissModalViewControllerAnimated:YES];
 				gvc = nil;
 				return;
 			}
-			
-			NSString *challengeReason;
-			NSString *challengeOutcome;
 			
 			NSString *w = [self getWordWithPrefix:challengedWord];
 			
@@ -356,11 +361,11 @@
 				
 				if ([[gameData objectForKey:@"winner"] isEqualToString:opponent])
 				{
-					pushMessage = [NSString stringWithFormat:@"%@ beat you! :(", playerName];
+					pushMessage = [NSString stringWithFormat:@"You beat %@! :)", playerName];
 				}
 				else
 				{
-					pushMessage = [NSString stringWithFormat:@"You beat %@! :)", playerName];
+					pushMessage = [NSString stringWithFormat:@"%@ beat you! :(", playerName];
 				}
 				
 				[MGWU move:move withMoveNumber:moveNumber forGame:gameID withGameState:gameState withGameData:gameData againstPlayer:opponent withPushNotificationMessage:pushMessage withCallback:@selector(moveCompleted:) onTarget:self];
@@ -375,7 +380,7 @@
 				[self loadGame];
 				gameEnded = @"no";
 			}
-			
+						
 			if ([challengeOutcome isEqualToString:@"won"])
 			{
 				//open graph magic
@@ -403,6 +408,10 @@
 		}
 		else
 		{
+			
+			challengeOutcome = nil;
+			challengeReason = nil;
+			
 			NSString *oldWord = [oldGameData objectForKey:@"word"];
 			
 			NSDictionary *move;
@@ -435,9 +444,42 @@
 			[MGWU move:move withMoveNumber:moveNumber forGame:gameID withGameState:gameState withGameData:gameData againstPlayer:opponent withPushNotificationMessage:pushMessage withCallback:@selector(moveCompleted:) onTarget:self];
 		}
 	}
-	[self dismissModalViewControllerAnimated:YES];
+	[self dismissViewControllerAnimated:YES completion:^(void)
+	 {
+		 [self displayChallengePopup];
+	 }];
 	gvc = nil;
+	
+	if (letter)
+		[MGWU logEvent:@"letter_selected" withParams:@{@"letter":letter}];
 	//[self.navigationController popViewControllerAnimated:YES];
+}
+
+- (void)displayChallengePopup
+{
+	if (challengeReason)
+	{
+		pvc = (PopupViewController*)[self.storyboard instantiateViewControllerWithIdentifier:@"popup"];
+		if ([challengeOutcome isEqualToString:@"won"])
+			pvc.titleString = @"You Won the Challenge!";
+		else
+			pvc.titleString = @"You Lost the Challenge";
+		if ([challengeReason isEqualToString:@"not_word"])
+			pvc.messageString = [NSString stringWithFormat:@"%@ is not a word, nor a word fragment", oldWord];
+		else if ([challengeReason isEqualToString:@"complete_word"])
+			pvc.messageString = [NSString stringWithFormat:@"%@ is a complete word", oldWord];
+		else
+			pvc.messageString = [NSString stringWithFormat:@"%@ is not a word, but is a word fragment", oldWord];
+		pvc.delegate = self;
+		[self.view addSubview:pvc.view];
+	}
+
+}
+
+-(void)dismiss
+{
+	[pvc.view removeFromSuperview];
+	pvc = nil;
 }
 
 - (NSString*)getWordWithPrefix:(NSString*)prefix
@@ -491,10 +533,7 @@
 	//If game object exists, reload the game
 	if (game)
 	{
-		NSString *gameID = [NSString stringWithFormat:@"%@",[game objectForKey:@"gameid"]];
-		NSMutableDictionary *savedGame = [NSMutableDictionary dictionaryWithDictionary:[MGWU objectForKey:gameID]];
-		if ([savedGame isEqualToDictionary:@{}])
-			[MGWU getGame:[[game objectForKey:@"gameid"] intValue] withCallback:@selector(gotGame:) onTarget:self];
+		[MGWU getGame:[[game objectForKey:@"gameid"] intValue] withCallback:@selector(gotGame:) onTarget:self];
 	}
 		
 }

@@ -88,7 +88,6 @@
 	//If the image exists, set the imageView to display this image
 	if (image)
 		imageView.image = image;
-
 }
 
 -(void)getImage
@@ -109,9 +108,25 @@
 	//If the image has not been downloaded yet, download the image
 	if (!image)
 		[self downloadImage];
-	//Else, set the imageView to display the image
+	//Else, set the imageView to display the image and reload the image if it is over a week old
 	else
+	{
 		imageView.image = image;
+		
+		NSFileManager* fm = [NSFileManager defaultManager];
+		NSDictionary* attrs = [fm attributesOfItemAtPath:path error:nil];
+		if (attrs != nil) {
+			NSDate *downloadDate = (NSDate*)[attrs objectForKey: NSFileCreationDate];
+			NSDate *today = [NSDate date];
+			
+			NSCalendar *gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+			NSDateComponents *dateDifference = [gregorian components:NSWeekCalendarUnit fromDate:downloadDate toDate:today options:0];
+			NSUInteger weeksDiff = [dateDifference week];
+			
+			if (weeksDiff)
+				[self downloadImage];
+		}
+	}
 }
 
 //Method to set profile picture to generic image view

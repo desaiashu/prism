@@ -70,7 +70,7 @@
 	
 	UILabel *l = [[UILabel alloc] initWithFrame:CGRectMake(5, 5, 310, 28)];
 	l.textColor = [UIColor colorWithRed:(223.0/256.0) green:(228.0/256.0) blue:(227.0/256.0) alpha:1.0];
-	l.font = [UIFont fontWithName:@"NEXA BOLD" size:28.0];
+	l.font = [UIFont fontWithName:@"Nexa Bold" size:28.0];
 	l.backgroundColor = [UIColor clearColor];
 	if (section == 0)
 		l.text =  @"YOUR TURN";

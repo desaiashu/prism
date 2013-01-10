@@ -44,13 +44,13 @@
 	//Get messages from server
 	[MGWU getMessagesWithFriend:friendId andCallback:@selector(reload:) onTarget:self];
 	//Set variables for text entry field
-	[message setReturnKeyType:UIReturnKeyDone];
+	[message setReturnKeyType:UIReturnKeySend];
 	[message setKeyboardAppearance:UIKeyboardAppearanceAlert];
 	[message setDelegate:self];
 	
 	//Stretch out text entry field if app is in landscape and user has iPhone 5 (longer screen)
-	if (UIDeviceOrientationIsLandscape([[UIApplication sharedApplication] statusBarOrientation]) && self.view.frame.size.height == 568)
-		message.frame = CGRectMake(message.frame.origin.x, message.frame.origin.y, message.frame.size.width+88, message.frame.size.height);
+//	if (UIDeviceOrientationIsLandscape([[UIApplication sharedApplication] statusBarOrientation]) && self.view.frame.size.height == 568)
+//		message.frame = CGRectMake(message.frame.origin.x, message.frame.origin.y, message.frame.size.width+88, message.frame.size.height);
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -102,6 +102,11 @@
 
 - (IBAction)send:(id)sender
 {
+	[self send];
+}
+
+- (void)send
+{
 	//Hide keyboard
 	[message resignFirstResponder];
 	//If text input is not empty, send message up to server and empty text input. Callback will reload chat
@@ -114,7 +119,7 @@
 
 //Method to hide keyboard when done is pressed
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
-	[textField resignFirstResponder];
+	[self send];
 	return YES;
 }
 

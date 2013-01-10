@@ -8,8 +8,9 @@
 
 #import <UIKit/UIKit.h>
 #import "GuessViewController.h"
+#import "PopupViewController.h"
 
-@interface GameViewController : UIViewController <GuessDelegate>
+@interface GameViewController : UIViewController <GuessDelegate, PopupDelegate>
 {
 	//Dictionary containing game object
 	NSMutableDictionary *game;
@@ -51,9 +52,14 @@
 	BOOL inChat;
 	BOOL inGuess;
 	
+	NSString *challengeReason;
+	NSString *challengeOutcome;
+	NSString *oldWord;
+	
 	NSString *title;
 	
 	GuessViewController *gvc;
+	PopupViewController *pvc;
 }
 
 @property NSMutableDictionary *game;

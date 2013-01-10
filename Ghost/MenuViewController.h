@@ -10,11 +10,9 @@
 
 @interface MenuViewController : UIViewController
 {
-	BOOL inCrossPromo;
 	IBOutlet UIButton *play;
 	IBOutlet UIButton *moreGames;
-	BOOL inInstructions;
-	long long timestamp;
+	BOOL inGame;
 }
 
 - (IBAction)moreGames:(id)sender;

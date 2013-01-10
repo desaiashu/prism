@@ -57,7 +57,7 @@
 - (NSArray *)sectionIndexTitlesForTableView:(UITableView *)tableView {
     NSMutableArray *charactersForSort = [[NSMutableArray alloc] init];
 	
-	if (tableView == self.searchDisplayController.searchResultsTableView || [nonPlayers count] < 20)
+	if (tableView == self.searchDisplayController.searchResultsTableView)
         return charactersForSort;
 	
 	for (NSDictionary *item in nonPlayers)
@@ -268,6 +268,9 @@
 			if([view respondsToSelector:@selector(setIndexColor:)])
 				[view performSelector:@selector(setIndexColor:) withObject:[UIColor whiteColor]];
 	}
+	
+	//Only show section index (letter scroll bar on right) if you have 20+ rows
+	tView.sectionIndexMinimumDisplayRowCount = 20;
 }
 
 - (void)viewDidUnload

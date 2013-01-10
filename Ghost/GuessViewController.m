@@ -34,14 +34,6 @@
 		word.text = [[w stringByAppendingString:@" >"] uppercaseString];
 	else
 		word.text = @">";
-	word.font = [UIFont fontWithName:@"ghosty" size:40.0];
-//	NSString *uline = @"";
-//	for (int i = 0; i <= [w length]; i+=2)
-//	{
-//		uline = [uline stringByAppendingString:@"> "];
-//	}
-//	underline.text = uline;
-//	underline.font = [UIFont fontWithName:@"ghosty" size:20.0];
 	
 	if ([w length] < 2)
 		[challenge setHidden:YES];
@@ -55,7 +47,6 @@
 		timer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(countdown) userInfo:nil repeats:YES];
 		counter = 30;
 	}
-	time.font = [UIFont fontWithName:@"Nexa Bold" size:40.0];
 }
 
 - (void) viewWillAppear:(BOOL)animated {

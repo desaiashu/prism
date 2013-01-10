@@ -26,6 +26,8 @@ NSMutableArray *words;
 	//Setup MGWU SDK
 	[MGWU loadMGWU:@"spooky"];
 	
+	[MGWU dark];
+	
 	[MGWU forceFacebook];
 	
 	[MGWU setReminderMessage:@"Come back and play Ghost!"];
@@ -82,6 +84,12 @@ NSMutableArray *words;
 			if ([vc isMemberOfClass:[TabBarController class]])
 			{
 				[(TabBarController*)vc refresh];
+			}
+			else if ([vc isMemberOfClass:[GameViewController class]])
+			{
+				GameViewController *gvc = (GameViewController*)vc;
+				if ([gvc.opponentName isEqualToString:[userInfo objectForKey:@"from"]])
+					[gvc refresh];
 			}
 			else if ([vc isMemberOfClass:[ChatViewController class]])
 			{
