@@ -1,9 +1,12 @@
 //
 //  MGWU.h
-//  CrossPromoWidget
+//  mgwuSDK
 //
 //  Created by Ashu Desai on 4/7/12.
 //  Copyright (c) 2012 makegameswithus inc. All rights reserved.
+//
+//
+//  Complete documentation for the mgwuSDK is available at https://github.com/adesai/mgwuSDK
 //
 //  Contains open source code and SDKs from Crashlytics, Inc. (SecureUDID, CrashlyticsSDK), Matej Bukovinski (MBProgressHUD), Stig Brautaset (SBJson), Ray Wenderlich (iAPHelper), Facebook (FacebookConnect iOS), Tapjoy (TapjoyConnect), Arash Payan (Appirater), Benjamin Borowski and Stephane Peter (GKAchievementNotification) thank you to all!
 //
