@@ -3,7 +3,7 @@
 //  Ghost
 //
 //  Created by Ashutosh Desai on 11/9/12.
-//  Copyright (c) 2012 makegameswithus inc. All rights reserved.
+//  Copyright (c) 2012 makegameswithus inc. Free to use for all purposes.
 //
 
 #import "ProfilePictureCache.h"
