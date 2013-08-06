@@ -138,10 +138,15 @@
 		game = [gamesCompleted objectAtIndex:indexPath.row];
 		
 		//Sets action to points you got that round to indicate whether you won or lost / by how much
-		action = [[[[game objectForKey:@"gamedata"] objectForKey:[user objectForKey:@"username"]] uppercaseString] stringByReplacingOccurrencesOfString:@" " withString:@""];
-		while ([action length] < 5)
+		action = [[game objectForKey:@"gamedata"] objectForKey:[user objectForKey:@"username"]];
+		
+		if (action && [action isKindOfClass:[NSString class]])
 		{
-			action = [action stringByAppendingString:@">"];
+			action = [[action uppercaseString] stringByReplacingOccurrencesOfString:@" " withString:@""];
+			while ([action length] < 5)
+			{
+				action = [action stringByAppendingString:@">"];
+			}
 		}
 	}
 

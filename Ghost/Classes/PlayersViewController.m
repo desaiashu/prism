@@ -247,9 +247,9 @@
 				[self.navigationController pushViewController:gvc animated:YES];
 			}
 		}
-		//If random player, load random player from the server, callback will begin game
+		//Get random game from server, callback will begin game
 		else
-			[MGWU getRandomPlayerWithCallback:@selector(gotPlayer:) onTarget:self];
+			[MGWU getRandomGameWithCallback:@selector(gotGame:) onTarget:self];
 	}
 	//If recommended friend, start a game with the friend
 	else if (indexPath.section == 1)
@@ -267,18 +267,30 @@
 	[tableView deselectRowAtIndexPath:indexPath animated:NO];
 }
 
--(void)gotPlayer:(NSDictionary*)p
+-(void)gotGame:(NSMutableDictionary*)g
 {
-	//If player doesn't exist (no player of that username), do nothing
-	if (!p)
+	//If error occurs, do nothing
+	if (!g)
 		return;
-
-	//Start game with player
-    GameViewController *gvc = [self.storyboard instantiateViewControllerWithIdentifier:@"GameViewController"];
-	gvc.opponent = [p objectForKey:@"username"];
-	gvc.opponentName = [p objectForKey:@"username"];
-	gvc.playerName = [user objectForKey:@"username"];
-	[self.navigationController pushViewController:gvc animated:YES];
+	
+	//If the server responds with no existing random game, start a new one
+	if ([[g objectForKey:@"gameid"] intValue] == 0)
+	{
+		//Start game with mgwu-random
+		GameViewController *gvc = [self.storyboard instantiateViewControllerWithIdentifier:@"GameViewController"];
+		gvc.opponent = @"mgwu-random";
+		gvc.opponentName = @"mgwu-random";
+		gvc.playerName = [user objectForKey:@"username"];
+		[self.navigationController pushViewController:gvc animated:YES];
+	}
+	//Otherwise, join the game that was returned
+	else
+	{
+		//Play game retreived from server
+		GameViewController *gvc = [self.storyboard instantiateViewControllerWithIdentifier:@"GameViewController"];
+		gvc.game = g;
+		[self.navigationController pushViewController:gvc animated:YES];
+	}
 }
 
 -(void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender{
