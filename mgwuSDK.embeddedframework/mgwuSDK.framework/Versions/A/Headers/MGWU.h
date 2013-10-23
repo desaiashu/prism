@@ -10,7 +10,7 @@
 //
 //  Contains open source code and SDKs from Crashlytics, Inc. (SecureUDID, CrashlyticsSDK), Matej Bukovinski (MBProgressHUD), Stig Brautaset (SBJson), Ray Wenderlich (iAPHelper), Facebook (FacebookConnect iOS), Tapjoy (TapjoyConnect), Arash Payan (Appirater), Benjamin Borowski and Stephane Peter (GKAchievementNotification) thank you to all!
 //
-//  MGWU_BUILD_NUMBER 360
+//  MGWU_BUILD_NUMBER 411
 //
 
 #import <UIKit/UIKit.h>
@@ -184,6 +184,12 @@
 + (void)getMessagesWithFriend:(NSString*)friendId andCallback:(SEL)m onTarget:(id)t;
 + (void)sendMessage:(NSString*)message toFriend:(NSString*)friendId andCallback:(SEL)m onTarget:(id)t;
 
+/////////////////////////////////////////////////////////////////////////////////
+//
+//Multiplayer File Sending
+//
++ (void)useS3WithAccessKey:(NSString*)accessKey andSecretKey:(NSString*)secretKey;
++ (void)getFileWithExtension:(NSString*)ext forGame:(int)gameId andMove:(int)moveNumber withCallback:(SEL)m onTarget:(id)t;
 
 /////////////////////////////////////////////////////////////////////////////////
 //
@@ -205,5 +211,15 @@
 + (void)test;
 + (void)local;
 + (void)invisiblePause;
+
+/////////////////////////////////////////////////////////////////////////////////
+//
+//For Prism
+//
++ (void)overrideUsername:(NSString*)u;
++ (void)checkUsername:(NSString *)u withCallback:(SEL)m onTarget:(id)t;
++ (void)getGlobalMessagesWithCallback:(SEL)m onTarget:(id)t;
++ (void)sendGlobalMessage:(NSString*)message withCallback:(SEL)m onTarget:(id)t;
++ (void)deleteMessageAtIndex:(int)index withFriend:(NSString*)friendId withCallback:(SEL)m onTarget:(id)t;
 
 @end
