@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "PullRefresh.h"
 
-@interface ChatViewController : UIViewController <UITextFieldDelegate, UITableViewDelegate>
+@interface ChatViewController : UIViewController <UITextFieldDelegate, UITableViewDelegate, UITableViewDataSource>
 {
 	//Text entry box
 	IBOutlet UITextField *message;
@@ -27,6 +27,7 @@
 @property NSString *friendId, *friendPubKey;
 @property UITableView *tView;
 
+- (id)initWithFriend:(NSString*)friend;
 - (void)refresh;
 - (IBAction)refresh:(id)sender;
 - (IBAction)send:(id)sender;

@@ -8,7 +8,6 @@
 
 #import "ChatViewController.h"
 #import "AppDelegate.h"
-#import <QuartzCore/QuartzCore.h>
 #import "Security.h"
 
 @interface ChatViewController ()
@@ -30,36 +29,51 @@
     return self;
 }
 
+- (id)initWithFriend:(NSString*)friend
+{
+    self = [super init];
+    if (self) {
+        // Custom initialization
+		//Initialize the array to empty
+		transcript = [[NSMutableArray alloc] init];
+		friendId = friend;
+		[self.view addSubview:[UIElements header:friendId withBackButton:YES]];
+		tView = [UIElements tableView];
+		tView.delegate = self;
+		tView.dataSource = self;
+		[self.view addSubview:tView];
+		UIView *footer = [UIElements footer];
+		message = [UIElements footerTextInputField];
+		UIButton *sendButton = [UIElements sendButton];
+		[sendButton addTarget:self action:@selector(send) forControlEvents:UIControlEventTouchUpInside];
+		[footer addSubview:message];
+		[footer addSubview:sendButton];
+		[self.view addSubview:footer];
+		
+		//Set variables for text entry field
+		[message setReturnKeyType:UIReturnKeySend];
+		[message setKeyboardAppearance:UIKeyboardAppearanceAlert];
+		[message setDelegate:self];
+		
+		[Security addPeerPublicKey:friendId keyString:friendPubKey];
+    }
+    return self;
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view.
-	
-//	//Set image of refresh button to nothing
-//	[refreshButton setImage:nil];
-//	//Set title to nothing
-//	[refreshButton setTitle:@""];
-//	//Set background image of refresh button, capInsets are used to position button horizontally
-//	UIImage *refreshBtnImg = [[UIImage imageNamed:@"RefreshButton.png"] resizableImageWithCapInsets:UIEdgeInsetsMake(0, 24, 0, 0)];
-//	[refreshButton setBackgroundImage:refreshBtnImg forState:UIControlStateNormal barMetrics:UIBarMetricsDefault];
-//	//Adjust vertically
-//	[refreshButton setBackgroundVerticalPositionAdjustment:5.0 forBarMetrics:UIBarMetricsDefault];
-	
-	//Set variables for text entry field
-	[message setReturnKeyType:UIReturnKeySend];
-	[message setKeyboardAppearance:UIKeyboardAppearanceAlert];
-	[message setDelegate:self];
-	
-	[Security addPeerPublicKey:friendId keyString:friendPubKey];
-	
+}
+
+- (void)viewDidAppear:(BOOL)animated
+{
 	//Get messages from server
 	[MGWU getMessagesWithFriend:friendId andCallback:@selector(reload:) onTarget:self];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
 	
-	[self.navigationController setNavigationBarHidden:NO animated:YES];
-	self.navigationItem.title = friendId;
 	//Register to get alerts when the keyboard is about to appear or hide
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:)
 												 name:UIKeyboardWillShowNotification object:self.view.window];
@@ -110,7 +124,7 @@
 		else
 			body = [Security decryptRSA:[messageParts objectAtIndex:1]];
 		
-		if (!body)
+		if (!body || [body isEqualToString:@""])
 			body = @"this message could not be decrypted";
 		
 		[[transcript objectAtIndex:i] setObject:body forKey:@"message"];
@@ -118,6 +132,11 @@
 	
 	[tView reloadData];
 	
+	[self scrollToBottom];
+}
+
+- (void)scrollToBottom
+{
 	//Scroll to bottom to show newest chats
 	if([transcript count] > 0)
 	{
@@ -219,88 +238,32 @@
 {
 	//Create cell
 	static NSString *CellIdentifier = @"Cell";
-	
-	UIImageView *balloonView;
-	UILabel *label;
-	UIImageView *pictureView;
-	
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    ChatTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (cell == nil) {
-        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
-		cell.backgroundColor = [UIColor clearColor];
-		cell.selectionStyle = UITableViewCellSelectionStyleNone;
-		tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
-		
-		//Balloon View displays chat bubble
-		balloonView = [[UIImageView alloc] initWithFrame:CGRectZero];
-		balloonView.tag = 1;
-		
-		//Label displays message
-		label = [[UILabel alloc] initWithFrame:CGRectZero];
-		label.backgroundColor = [UIColor clearColor];
-		label.tag = 2;
-		label.numberOfLines = 0;
-		label.lineBreakMode = UILineBreakModeWordWrap;
-		label.font = [UIFont systemFontOfSize:14.0];
-		
-		//Picture displays profile picture of message sender
-		pictureView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"fbdefault.png"]];
-		pictureView.tag = 3;
-		
-		//Add subviews to messageview, and add messageview to cell
-		UIView *messageview = [[UIView alloc] initWithFrame:CGRectMake(0.0, 2.0, cell.frame.size.width, cell.frame.size.height-2)];
-		messageview.tag = 0;
-		[messageview addSubview:balloonView];
-		[messageview addSubview:label];
-		[messageview addSubview:pictureView];
-		[cell.contentView addSubview:messageview];
-		
+        cell = [[ChatTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
 	}
 	else
 	{
-		//If reusing a cell, simply update elements
-		balloonView = (UIImageView *)[[cell.contentView viewWithTag:0] viewWithTag:1];
-		label = (UILabel *)[[cell.contentView viewWithTag:0] viewWithTag:2];
-		pictureView = (UIImageView *)[[cell.contentView viewWithTag:0] viewWithTag:3];
-		pictureView.image = [UIImage imageNamed:@"fbdefault.png"];
+		[cell.message removeFromSuperview];
+		cell.message = nil;
 	}
+
+	cell.from.text = [[transcript objectAtIndex:indexPath.row] objectForKey:@"from"];
+	cell.time.text = [NSString stringWithFormat:@"%@", [[transcript objectAtIndex:indexPath.row] objectForKey:@"time"]];
 	
-	if (indexPath.row == 0)
-		balloonView.superview.frame = CGRectMake(0.0, 10.0, cell.frame.size.width, cell.frame.size.height-2);
-	else
-		balloonView.superview.frame = CGRectMake(0.0, 2.0, cell.frame.size.width, cell.frame.size.height-2);
-	
-	//Set size and placement of subviews based on message length
-	NSString *text = [[transcript objectAtIndex:indexPath.row] objectForKey:@"message"];
-	CGSize size = [text sizeWithFont:[UIFont systemFontOfSize:14.0] constrainedToSize:CGSizeMake(self.view.bounds.size.width-80-40, self.view.bounds.size.height) lineBreakMode:UILineBreakModeWordWrap];
-	
-	UIImage *balloon;
+	cell.message = [UIElements chatMessage:[[transcript objectAtIndex:indexPath.row] objectForKey:@"message"]];
+	[cell addSubview:cell.message];
 	
 	if ([[[transcript objectAtIndex:indexPath.row] objectForKey:@"from"] isEqualToString:[user objectForKey:@"username"]])
 	{
-		balloonView.frame = CGRectMake(self.view.bounds.size.width-40 - (size.width + 28.0f), 2.0f, size.width + 28.0f, size.height + 15.0f);
-		balloon = [[UIImage imageNamed:@"Graphite.png"] stretchableImageWithLeftCapWidth:24 topCapHeight:15];
-		label.frame = CGRectMake((self.view.bounds.size.width-13-40) - (size.width + 5.0f), 8.0f, size.width + 5.0f, size.height);
-		
-		pictureView.frame = CGRectMake(self.view.bounds.size.width - (40.f), size.height-18.f, 34.f, 34.f);
+		if (!cell.right)
+			[cell flip];
 	}
 	else
 	{
-		balloonView.frame = CGRectMake(40.0, 2.0, size.width + 28, size.height + 15);
-		balloon = [[UIImage imageNamed:@"Grey.png"] stretchableImageWithLeftCapWidth:24 topCapHeight:15];
-		label.frame = CGRectMake(16+40, 8, size.width + 5, size.height);
-		
-		pictureView.frame = CGRectMake(6.f, size.height-18.f, 34.f, 34.f);
+		if (cell.right)
+			[cell flip];
 	}
-	
-	//Add border radius to profile picture
-	CALayer *l = [pictureView layer];
-	[l setMasksToBounds:YES];
-	[l setCornerRadius:5.0];
-	
-	//Set balloon image and label text
-	balloonView.image = balloon;
-	label.text = text;
 	
     return cell;
 }
@@ -308,21 +271,16 @@
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
 	//Set variable height of cell based on length of message
 	NSString *body = [[transcript objectAtIndex:indexPath.row] objectForKey:@"message"];
-	CGSize size = [body sizeWithFont:[UIFont systemFontOfSize:14.0] constrainedToSize:CGSizeMake(self.view.bounds.size.width-80-40, self.view.bounds.size.height) lineBreakMode:UILineBreakModeWordWrap];
-	if (indexPath.row == 0)
-		return size.height + 30;
-	else if (indexPath.row+1 == [transcript count])
-		return size.height + 28;
-	else
-		return size.height + 22;
+	return [UIElements heightForChatCell:body];
 }
 
 //When tableViewCell is tapped
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
+	ChatTableViewCell *c = (ChatTableViewCell *)[tableView cellForRowAtIndexPath:indexPath];
 	//Remove highlight on selected cell
 	[tableView deselectRowAtIndexPath:indexPath animated:NO];
-	[MGWU deleteMessageAtIndex:indexPath.row withFriend:friendId withCallback:@selector(reload:) onTarget:self];
+	//[MGWU deleteMessageAtIndex:indexPath.row withFriend:friendId withCallback:@selector(reload:) onTarget:self];
 }
 
 - (void)viewDidUnload

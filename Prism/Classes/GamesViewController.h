@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "PullRefresh.h"
 
-@interface GamesViewController : UIViewController <PullRefreshDelegate, UITextFieldDelegate, UIAlertViewDelegate>
+@interface GamesViewController : UIViewController <PullRefreshDelegate, UITextFieldDelegate, UIAlertViewDelegate, UITableViewDataSource, UITableViewDelegate>
 {
 	//Arrays to store games based on status
 	NSMutableArray *games;

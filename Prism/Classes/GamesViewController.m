@@ -9,8 +9,8 @@
 #import "ChatViewController.h"
 #import "AppDelegate.h"
 #import "TabBarController.h"
-#import "TableViewCell.h"
-#import "RequestTableViewCell.h"
+#import "FriendsTableViewCell.h"
+#import "ChatTableViewCell.h"
 #import "Security.h"
 
 @interface GamesViewController ()
@@ -20,11 +20,6 @@
 @implementation GamesViewController
 
 @synthesize games, gamesCompleted, gamesYourTurn, gamesTheirTurn, tView, pr;
-
-- (void)viewWillAppear:(BOOL)animated
-{
-	[self.navigationController setNavigationBarHidden:YES animated:YES];
-}
 
 - (void)viewDidAppear:(BOOL)animated
 {
@@ -62,48 +57,48 @@
 	user = [userInfo objectForKey:@"info"];
 	games = [userInfo objectForKey:@"games"];
 	
-	//Split up games based on whose turn it is / whether the game is over
-	gamesCompleted = [[NSMutableArray alloc] init];
-	gamesYourTurn = [[NSMutableArray alloc] init];
-	gamesTheirTurn = [[NSMutableArray alloc] init];
-	
-	NSString *username = [user objectForKey:@"username"];
-	
-	int messages = 0;
-	
-	for (NSMutableDictionary *game in games)
-	{
-		NSString* gameState = [game objectForKey:@"gamestate"];
-		NSString* turn = [game objectForKey:@"turn"];
-		
-		NSString* oppName;
-		NSArray* gamers = [game objectForKey:@"players"];
-		if ([[gamers objectAtIndex:0] isEqualToString:username])
-			oppName = [gamers objectAtIndex:1];
-		else
-			oppName = [gamers objectAtIndex:0];
-		
-		if ([gameState isEqualToString:@"ended"])
-		{
-			[gamesCompleted addObject:game];
-		}
-		else if ([turn isEqualToString:[user objectForKey:@"username"]])
-		{
-			[gamesYourTurn addObject:game];
-		}
-		else
-		{
-			[gamesTheirTurn addObject:game];
-		}
-		
-		messages += [[game objectForKey:@"newmessages"] intValue];
-	}
-	
-	//Set badges on tab bar based on games that are your turn and new friends who are playing
-	if (messages + [gamesYourTurn count] == 0)
-		self.navigationController.tabBarItem.badgeValue = nil;
-	else
-		self.navigationController.tabBarItem.badgeValue = [NSString stringWithFormat:@"%d", messages + [gamesYourTurn count]];
+//	//Split up games based on whose turn it is / whether the game is over
+//	gamesCompleted = [[NSMutableArray alloc] init];
+//	gamesYourTurn = [[NSMutableArray alloc] init];
+//	gamesTheirTurn = [[NSMutableArray alloc] init];
+//	
+//	NSString *username = [user objectForKey:@"username"];
+//	
+//	int messages = 0;
+//	
+//	for (NSMutableDictionary *game in games)
+//	{
+//		NSString* gameState = [game objectForKey:@"gamestate"];
+//		NSString* turn = [game objectForKey:@"turn"];
+//		
+//		NSString* oppName;
+//		NSArray* gamers = [game objectForKey:@"players"];
+//		if ([[gamers objectAtIndex:0] isEqualToString:username])
+//			oppName = [gamers objectAtIndex:1];
+//		else
+//			oppName = [gamers objectAtIndex:0];
+//		
+//		if ([gameState isEqualToString:@"ended"])
+//		{
+//			[gamesCompleted addObject:game];
+//		}
+//		else if ([turn isEqualToString:[user objectForKey:@"username"]])
+//		{
+//			[gamesYourTurn addObject:game];
+//		}
+//		else
+//		{
+//			[gamesTheirTurn addObject:game];
+//		}
+//		
+//		messages += [[game objectForKey:@"newmessages"] intValue];
+//	}
+//	
+//	//Set badges on tab bar based on games that are your turn and new friends who are playing
+//	if (messages + [gamesYourTurn count] == 0)
+//		self.navigationController.tabBarItem.badgeValue = nil;
+//	else
+//		self.navigationController.tabBarItem.badgeValue = [NSString stringWithFormat:@"%d", messages + [gamesYourTurn count]];
 	
 	//Reload all views, and stop all pull to refresh from happening
 	[tView reloadData];
@@ -176,57 +171,51 @@
 //3 sections in table view, your turn, waiting for opponent, completed games
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-	if ([gamesYourTurn count] > 0)
-		return 2;
-	else
-		return 1;
+	return 1;
 }
 
-//Set height of section headers
-- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
-{
-	return 40.0;
-}
+////Set height of section headers
+//- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
+//{
+//	return [UIElements heightForFriendCell];
+//}
 
-//Customize look of section header, give it background, line, custom fonts and set the title based on which section it is
-- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
-{
-	UIView *t = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 320, 40)];
-	
-	UIImageView *v = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"HeaderBackground"]];
-	
-	UILabel *l = [[UILabel alloc] initWithFrame:CGRectMake(5, 5, 310, 28)];
-	l.textColor = [UIColor colorWithRed:(223.0/256.0) green:(228.0/256.0) blue:(227.0/256.0) alpha:1.0];
-	l.font = [UIFont fontWithName:@"Nexa Bold" size:28.0];
-	l.backgroundColor = [UIColor clearColor];
-	if ([gamesYourTurn count] > 0 && section == 0)
-		l.text =  @"REQUESTS";
-	else
-		l.text = @"MESSAGES";
-	
-	UIView *b = [[UIView alloc] initWithFrame:CGRectMake(5, 32, 310, 2)];
-	b.backgroundColor = [UIColor colorWithRed:(223.0/256.0) green:(228.0/256.0) blue:(227.0/256.0) alpha:1.0];
-	
-	[t addSubview:v];
-	[t addSubview:l];
-	[t addSubview:b];
-	
-	return t;
-}
+////Customize look of section header, give it background, line, custom fonts and set the title based on which section it is
+//- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
+//{
+//	UIView *t = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 320, 40)];
+//	
+//	UIImageView *v = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"HeaderBackground"]];
+//	
+//	UILabel *l = [[UILabel alloc] initWithFrame:CGRectMake(5, 5, 310, 28)];
+//	l.textColor = [UIColor colorWithRed:(223.0/256.0) green:(228.0/256.0) blue:(227.0/256.0) alpha:1.0];
+//	l.font = [UIFont fontWithName:@"Nexa Bold" size:28.0];
+//	l.backgroundColor = [UIColor clearColor];
+//	if ([gamesYourTurn count] > 0 && section == 0)
+//		l.text =  @"REQUESTS";
+//	else
+//		l.text = @"MESSAGES";
+//	
+//	UIView *b = [[UIView alloc] initWithFrame:CGRectMake(5, 32, 310, 2)];
+//	b.backgroundColor = [UIColor colorWithRed:(223.0/256.0) green:(228.0/256.0) blue:(227.0/256.0) alpha:1.0];
+//	
+//	[t addSubview:v];
+//	[t addSubview:l];
+//	[t addSubview:b];
+//	
+//	return t;
+//}
 
 //Set number of rows based on arrays of games (filtered in tabBarController)
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-	if ([gamesYourTurn count] > 0 && section == 0)
-		return [gamesYourTurn count];
-	else
-		return [gamesCompleted count];
+	return [games count];
 }
 
 //Since our cells are custom cells, we need to return the height of each row
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-	return [TableViewCell cellHeight];
+	return [UIElements heightForFriendCell];
 }
 
 // Row display. Implementers should *always* try to reuse cells by setting each cell's reuseIdentifier and querying for available reusable cells with dequeueReusableCellWithIdentifier:
@@ -236,45 +225,18 @@
 {
 	//Create cell as TableViewCell, our custom cell class
 	NSString *CellIdentifier;
-	UITableViewCell *cell;
+	FriendsTableViewCell *cell;
 	BOOL pending = false;
 	
-	if ([gamesYourTurn count] > 0 && indexPath.section == 0)
-	{
-		CellIdentifier = @"PendingCell";
-		pending = true;
-		cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
-		if (cell == nil) {
-			cell = [[RequestTableViewCell alloc]
-					initWithStyle:UITableViewCellStyleDefault
-					reuseIdentifier:CellIdentifier];
-			cell.backgroundColor = [UIColor clearColor];
-		}
-		[cell setSelectionStyle:UITableViewCellSelectionStyleNone];
+	CellIdentifier = @"Cell";
+	cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+	if (cell == nil) {
+		cell = [[FriendsTableViewCell alloc]
+				initWithStyle:UITableViewCellStyleDefault
+				reuseIdentifier:CellIdentifier];
 	}
-	else
-	{
-		CellIdentifier = @"Cell";
-		cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
-		if (cell == nil) {
-			cell = [[TableViewCell alloc]
-					initWithStyle:UITableViewCellStyleDefault
-					reuseIdentifier:CellIdentifier];
-			cell.backgroundColor = [UIColor clearColor];
-			[cell setAccessoryType:UITableViewCellAccessoryDisclosureIndicator];
-		}
-	}
-	
-	NSDictionary *game;
-	
-	if (pending)
-	{
-		game = [gamesYourTurn objectAtIndex:indexPath.row];
-	}
-	else
-	{
-		game = [gamesCompleted objectAtIndex:indexPath.row];
-	}
+
+	NSDictionary *game = [games objectAtIndex:indexPath.row];
 
 	NSString* name;
 	NSArray* players = [game objectForKey:@"players"];
@@ -283,38 +245,52 @@
 	else
 		name = [players objectAtIndex:0];
 	
-	//Set labels for name and action
-	cell.textLabel.text = name;
+	cell.name.text = name;
 	
-	if (pending)
+	NSString* gameState = [game objectForKey:@"gamestate"];
+	NSString* turn = [game objectForKey:@"turn"];
+	
+	if ([gameState isEqualToString:@"ended"])
 	{
-		RequestTableViewCell *c = (RequestTableViewCell*)cell;
-		c.accept.tag = indexPath.row;
-		[c.accept addTarget:self action:@selector(accept:) forControlEvents:UIControlEventTouchUpInside];
-		c.reject.tag = indexPath.row;
-		[c.reject addTarget:self action:@selector(reject:) forControlEvents:UIControlEventTouchUpInside];
+		cell.status.text = @"chat with";
+	}
+	else if ([turn isEqualToString:name])
+	{
+		cell.status.text = @"request sent";
 	}
 	else
 	{
-		TableViewCell *c = (TableViewCell*)cell;
-		//Add chat icon indicater if there are new messages
-		int newmessages = [[game objectForKey:@"newmessages"] intValue];
-		if (newmessages > 0)
-		{
-			if (!c.chatIcon)
-			{
-				c.chatIcon = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"ChatIcon.png"]];
-				[c addSubview:c.chatIcon];
-			}
-		}
-		else if(c.chatIcon)
-		{
-			[c.chatIcon removeFromSuperview];
-			c.chatIcon = nil;
-		}
+		cell.status.text = @"request from";
+		pending = TRUE;
 	}
 	
-	cell.imageView.image = [UIImage imageNamed:@"WhiteGhost.png"];
+	//Set labels for name and action
+//	cell.textLabel.text = name;
+	
+//	if (pending)
+//	{
+//		ChatTableViewCell *c = (ChatTableViewCell*)cell;
+//		c.accept.tag = indexPath.row;
+//		[c.accept addTarget:self action:@selector(accept:) forControlEvents:UIControlEventTouchUpInside];
+//		c.reject.tag = indexPath.row;
+//		[c.reject addTarget:self action:@selector(reject:) forControlEvents:UIControlEventTouchUpInside];
+//	}
+
+	//Add chat icon indicater if there are new messages
+	int newmessages = [[game objectForKey:@"newmessages"] intValue];
+	if (newmessages > 0)
+	{
+		if (!cell.unread)
+		{
+			cell.unread = [UIElements friendUnread:newmessages];
+			[cell addSubview:cell.unread];
+		}
+	}
+	else if(cell.unread)
+	{
+		[cell.unread removeFromSuperview];
+		cell.unread = nil;
+	}
 	
     return cell;
 }
@@ -362,6 +338,14 @@
 //When tableViewCell is tapped
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
+	NSDictionary *game = [games objectAtIndex:indexPath.row];
+	FriendsTableViewCell *ftvc = (FriendsTableViewCell*)[tableView cellForRowAtIndexPath:indexPath];
+	
+	ChatViewController *cvc = [[ChatViewController alloc] initWithFriend:ftvc.name.text];
+	cvc.friendPubKey = [[game objectForKey:@"gamedata"] objectForKey:cvc.friendId];
+	
+	[self.navigationController pushViewController:cvc animated:YES];
+	
 	//Remove highlight on selected cell
 	[tableView deselectRowAtIndexPath:indexPath animated:NO];
 }
@@ -378,6 +362,25 @@
 		cvc.friendId = tvc.textLabel.text;
 		cvc.friendPubKey = [[game objectForKey:@"gamedata"] objectForKey:cvc.friendId];
 	}
+}
+
+- (id)init
+{
+	self = [super init];
+    if (self) {
+        // Initialization code
+		[self.view addSubview:[UIElements header:@"whisper" withBackButton:NO]];
+		
+		UIButton *new = [UIElements footerButtonWithTitle:@"new chat"];
+		[new addTarget:self action:@selector(newChat:) forControlEvents:UIControlEventTouchUpInside];
+		[self.view addSubview:new];
+		
+		tView = [UIElements tableView];
+		tView.delegate = self;
+		tView.dataSource = self;
+		[self.view addSubview:tView];
+    }
+    return self;
 }
 
 - (void)viewDidLoad

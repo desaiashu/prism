@@ -9,20 +9,10 @@
 #import <UIKit/UIKit.h>
 
 //Our custom tableViewCell
-@interface RequestTableViewCell : UITableViewCell
-{
-	UIFont *font;
-	UIFont *detailFont;
-	UIColor *textColor;
-	UIColor *altColor;
-	
-	UIButton *accept;
-	UIButton *reject;
-}
+@interface FriendsTableViewCell : UITableViewCell
 
+@property UILabel *name, *status;
+@property UIView *unread;
 @property UIButton *accept, *reject;
-
-+ (CGFloat) cellHeight;
-+ (NSString*)shortName:(NSString*)friendname;
 
 @end

@@ -20,7 +20,7 @@
  
 + (DTCustomColoredAccessory *)accessoryWithColor:(UIColor *)color
 {
-	DTCustomColoredAccessory *ret = [[DTCustomColoredAccessory alloc] initWithFrame:CGRectMake(0, 0, 11.0, 15.0)];
+	DTCustomColoredAccessory *ret = [[DTCustomColoredAccessory alloc] initWithFrame:CGRectMake(0, 0, 110.0, 150.0)];
 	ret.accessoryColor = color;
  
 	return ret;

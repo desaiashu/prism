@@ -23,6 +23,78 @@ BOOL noPush;
 {
 	[Security generateKeyPair];
 	
+	//[[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
+	[[UIApplication sharedApplication] setStatusBarHidden:YES];
+	
+	//Set up window/root view controller
+	self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+    self.window.backgroundColor = [UIElements darkColor];
+    [self.window makeKeyAndVisible];
+	
+	//[self.window addSubview:[UIElements statusBar]];
+//	[self.window addSubview:[UIElements header:@"desaiashu" withBackButton:YES]];
+	//[self.window addSubview:[UIElements enterUsername]];
+	//[self.window addSubview:[UIElements centerTextInputField]];
+	//[self.window addSubview:[UIElements floatingButtonWithTitle:@"request to chat"]];
+	//[self.window addSubview:[UIElements footerButtonWithTitle:@"new chat"]];
+
+//	UIView *cell = [[UIView alloc] initWithFrame:CGRectMake(0, 80, 320, 75)];
+//	[cell addSubview:[UIElements friendName:@"desaiashu"]];
+//	[cell addSubview:[UIElements friendStatus:@"request sent"]];
+//	
+//	UIView *cell2 = [[UIView alloc] initWithFrame:CGRectMake(0, 155, 320, 75)];
+//	[cell2 addSubview:[UIElements friendName:@"jvrossb"]];
+//	[cell2 addSubview:[UIElements friendStatus:@"chat with"]];
+//	[cell2 addSubview:[UIElements newChat:4]];
+//	
+//	[self.window addSubview:cell];
+//	[self.window addSubview:cell2];
+	
+//	UIView *cell3 = [[UIView alloc] initWithFrame:CGRectMake(0, 80, 320, 75)];
+//	[cell3 addSubview:[UIElements chatFrom:@"desaiashu"]];
+//	[cell3 addSubview:[UIElements chatTime:@"yesterday, 11:57pm"]];
+//	[cell3 addSubview:[UIElements chatMessage:@"hey, how's everything going?"]];
+//	
+//	UIView *cell4 = [[UIView alloc] initWithFrame:CGRectMake(0, 155, 320, 75)];
+//	[cell4 addSubview:[UIElements chatFrom:@"desaiashu"]];
+//	[cell4 addSubview:[UIElements chatTime:@"yesterday, 11:58pm"]];
+//	[cell4 addSubview:[UIElements chatMessage:@"let's try a really long block of text, and see if that changes anything, i'd assume we can get a pretty decent cell height off of this, but again, i'm just trying to find out. what's going to happen? i'm not 100% sure but i hope it works"]];
+//	
+//	UIView *cell5 = [[UIView alloc] initWithFrame:CGRectMake(0, 290, 320, 75)];
+//	UILabel *from = [UIElements chatFrom:@"desaiashu"];
+//	CGRect fromFrame = from.frame;
+//	from.textAlignment = UITextAlignmentRight;
+//	UILabel *time = [UIElements chatTime:@"yesterday, 11:58pm"];
+//	CGRect timeFrame = time.frame;
+//	time.textAlignment = UITextAlignmentLeft;
+//	time.frame = fromFrame;
+//	from.frame = timeFrame;
+//	UILabel *message = [UIElements chatMessage:@"ok it's starting to look pretty good, we're getting closer to the end"];
+//	message.textAlignment = UITextAlignmentRight;
+//	[cell5 addSubview:from];
+//	[cell5 addSubview:time];
+//	[cell5 addSubview:message];
+//	
+//	[self.window addSubview:cell3];
+//	[self.window addSubview:cell4];
+//	[self.window addSubview:cell5];
+//
+//	
+//	UIView *footer = [UIElements footer];
+//	[footer addSubview:[UIElements footerTextInputField]];
+//	[footer addSubview:[UIElements sendButton]];
+//	[self.window addSubview:footer];
+	
+//	[self.window addSubview:[UIElements passcode]];
+//	for (int i = 0; i < 12; i++)
+//		[self.window addSubview:[UIElements passcodeButtonWithNumber:i]];
+	
+//	[self.window addSubview:[UIElements about]];
+	
+	UINavigationController *nc = [[UINavigationController alloc] init];
+	self.window.rootViewController = nc;
+	nc.navigationBarHidden = TRUE;
+	
 	//Setup MGWU SDK
 	[MGWU loadMGWU:@"pr1v4t33ncrypt3dch4t"];
 	
@@ -31,6 +103,29 @@ BOOL noPush;
 	[MGWU preFacebook];
 	
 	[MGWU useCrashlyticsWithApiKey:@"90590517f87780a7e95ff36c9a7d9e008c8532a7"];
+	
+#if TARGET_IPHONE_SIMULATOR
+	
+	//Simulator
+	[MGWU overrideUsername:@"adesai"];
+#else
+	
+	// Device
+	[MGWU overrideUsername:@"desaiashu"];
+	
+#endif
+	
+	if (![MGWU getUsername])
+	{
+		//create account
+		
+	}
+	else
+	{
+		//enter passcode
+		GamesViewController *g = [[GamesViewController alloc] init];
+		[nc pushViewController:g animated:NO];
+	}
 	
 	//To flag whether push notifications are disabled
 	noPush = FALSE;

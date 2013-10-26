@@ -150,6 +150,7 @@ static CFMutableDictionaryRef dict = NULL;
 
 		OSStatus err = SecItemAdd((__bridge CFDictionaryRef) peerPublicKeyAttr, (CFTypeRef *)&peerKey);
 		
+		NSLog(@"add %i", (int)err);
 		if (err == errSecSuccess)
 			CFDictionaryAddValue(dict, (CFStringRef)peerName, peerKey);
 		
@@ -173,6 +174,7 @@ static CFMutableDictionaryRef dict = NULL;
 		
 		OSStatus err = SecItemCopyMatching((__bridge CFDictionaryRef) peerPublicKeyAttr, (CFTypeRef *)&peerKey);
 		
+		NSLog(@"copy %i", (int)err);
 		if (err == errSecSuccess)
 			CFDictionaryAddValue(dict, (CFStringRef)peerName, peerKey);
 	}
