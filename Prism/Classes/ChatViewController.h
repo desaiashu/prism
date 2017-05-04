@@ -9,10 +9,12 @@
 #import <UIKit/UIKit.h>
 #import "PullRefresh.h"
 
-@interface ChatViewController : UIViewController <UITextFieldDelegate, UITableViewDelegate, UITableViewDataSource>
+@interface ChatViewController : UIViewController <UITextViewDelegate, UITableViewDelegate, UITableViewDataSource>
 {
 	//Text entry box
-	IBOutlet UITextField *message;
+	UITextView *message;
+	UIView *footer;
+	UIButton *send;
 	//Username of user to chat with
 	NSString* friendId;
 	NSString* friendPubKey;
@@ -22,12 +24,13 @@
 	IBOutlet UITableView *tView;
 	//Refresh button on the nav bar
 	IBOutlet UIBarButtonItem *refreshButton;
+	BOOL editing;
 }
 
 @property NSString *friendId, *friendPubKey;
 @property UITableView *tView;
 
-- (id)initWithFriend:(NSString*)friend;
+- (id)initWithFriend:(NSString*)f andPubKey:(NSString*)p;
 - (void)refresh;
 - (IBAction)refresh:(id)sender;
 - (IBAction)send:(id)sender;

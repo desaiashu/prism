@@ -103,32 +103,50 @@ static CFMutableDictionaryRef dict = NULL;
 
 +(NSString *)encryptRSA:(NSString *)plainTextString key:(SecKeyRef)publicKey
 {
-	size_t cipherBufferSize = SecKeyGetBlockSize(publicKey);
-	uint8_t *cipherBuffer = malloc(cipherBufferSize);
-	uint8_t *nonce = (uint8_t *)[plainTextString UTF8String];
-	SecKeyEncrypt(publicKey,
-				  kSecPaddingOAEP,
-				  nonce,
-				  strlen( (char*)nonce ),
-				  &cipherBuffer[0],
-				  &cipherBufferSize);
-	NSData *encryptedData = [NSData dataWithBytes:cipherBuffer length:cipherBufferSize];
-	return [encryptedData base64EncodedString];
+	NSString *encryptedString = @"";
+	for (int i = 0; i < [plainTextString length]; i+=214)
+	{
+		NSString *stringPart = (i+214)>[plainTextString length]?[plainTextString substringFromIndex:i]:[plainTextString substringWithRange:NSMakeRange(i, 214)];
+		size_t cipherBufferSize = SecKeyGetBlockSize(publicKey);
+		uint8_t *cipherBuffer = malloc(cipherBufferSize);
+		uint8_t *nonce = (uint8_t *)[stringPart UTF8String];
+		SecKeyEncrypt(publicKey,
+					  kSecPaddingOAEP,
+					  nonce,
+					  strlen( (char*)nonce ),
+					  &cipherBuffer[0],
+					  &cipherBufferSize);
+		NSData *encryptedData = [NSData dataWithBytes:cipherBuffer length:cipherBufferSize];
+		NSString *encryptedStringPart = [encryptedData base64EncodedString];
+		if (encryptedStringPart)
+			encryptedString = [encryptedString stringByAppendingString:encryptedStringPart];
+	}
+	return encryptedString;
 }
 
 +(NSString *)decryptRSA:(NSString *)cipherString
 {
-	size_t plainBufferSize = SecKeyGetBlockSize(privateKey);
-	uint8_t *plainBuffer = malloc(plainBufferSize); NSData *incomingData = [NSData dataFromBase64String:cipherString];
-	uint8_t *cipherBuffer = (uint8_t*)[incomingData bytes];
-	size_t cipherBufferSize = SecKeyGetBlockSize(privateKey); SecKeyDecrypt(privateKey,
-																			kSecPaddingOAEP,
-																			cipherBuffer,
-																			cipherBufferSize,
-																			plainBuffer,
-																			&plainBufferSize);
-	NSData *decryptedData = [NSData dataWithBytes:plainBuffer length:plainBufferSize];
-	NSString *decryptedString = [[NSString alloc] initWithData:decryptedData encoding:NSUTF8StringEncoding]; return decryptedString;
+	NSString *decryptedString = @"";
+	for (int i = 0; i < [cipherString length]; i+=344)
+	{
+		NSString *cipherStringPart = (i+344)>[cipherString length]?[cipherString substringFromIndex:i]:[cipherString substringWithRange:NSMakeRange(i, 344)];
+		size_t plainBufferSize = SecKeyGetBlockSize(privateKey);
+		uint8_t *plainBuffer = malloc(plainBufferSize);
+		NSData *incomingData = [NSData dataFromBase64String:cipherStringPart];
+		uint8_t *cipherBuffer = (uint8_t*)[incomingData bytes];
+		size_t cipherBufferSize = SecKeyGetBlockSize(privateKey);
+		SecKeyDecrypt(privateKey,
+					  kSecPaddingOAEP,
+					  cipherBuffer,
+					  cipherBufferSize,
+					  plainBuffer,
+					  &plainBufferSize);
+		NSData *decryptedData = [NSData dataWithBytes:plainBuffer length:plainBufferSize];
+		NSString *decryptedStringPart = [[NSString alloc] initWithData:decryptedData encoding:NSUTF8StringEncoding];
+		if (decryptedStringPart)
+			decryptedString = [decryptedString stringByAppendingString:decryptedStringPart];
+	}
+	return decryptedString;
 }
 
 + (void)addPeerPublicKey:(NSString *)peerName keyString:(NSString *)publicKeyString
@@ -150,7 +168,6 @@ static CFMutableDictionaryRef dict = NULL;
 
 		OSStatus err = SecItemAdd((__bridge CFDictionaryRef) peerPublicKeyAttr, (CFTypeRef *)&peerKey);
 		
-		NSLog(@"add %i", (int)err);
 		if (err == errSecSuccess)
 			CFDictionaryAddValue(dict, (CFStringRef)peerName, peerKey);
 		
@@ -174,7 +191,6 @@ static CFMutableDictionaryRef dict = NULL;
 		
 		OSStatus err = SecItemCopyMatching((__bridge CFDictionaryRef) peerPublicKeyAttr, (CFTypeRef *)&peerKey);
 		
-		NSLog(@"copy %i", (int)err);
 		if (err == errSecSuccess)
 			CFDictionaryAddValue(dict, (CFStringRef)peerName, peerKey);
 	}

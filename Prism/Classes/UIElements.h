@@ -10,13 +10,14 @@
 #import "ChatTableViewCell.h"
 #import "FriendsTableViewCell.h"
 
-#define DARK_SCHEME true
+#define DARK_SCHEME false
 
 @interface UIElements : NSObject
 
 +(UIColor*)darkColor;
 +(UIColor*)lightColor;
 +(UIColor*)primaryColor;
++(UIColor*)backgroundColor;
 
 +(UIView*)statusBar;
 
@@ -37,10 +38,10 @@
 +(UILabel*)chatMessage:(NSString*)string;
 +(float)heightForChatCell:(NSString*)string;
 
-+(UIButton*)deleteButton;
++(UIButton*)deleteButtonWithHeight:(float)height;
 
 +(UIView*)footer;
-+(UITextField*)footerTextInputField;
++(UITextView*)footerTextInputField;
 +(UIButton*)sendButton;
 
 +(UITextField*)textInputField;

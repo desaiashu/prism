@@ -8,11 +8,14 @@
 
 #import <UIKit/UIKit.h>
 
+typedef void(^DeleteBlock)(void);
+
 //Our custom tableViewCell
 @interface ChatTableViewCell : UITableViewCell
 
 @property UILabel *from, *time, *message;
 @property BOOL right;
+@property (nonatomic, copy) DeleteBlock deleteBlock;
 
 -(void)flip;
 

@@ -16,7 +16,7 @@
     if (self) {
         // Initialization code
 		self.backgroundColor = [UIColor clearColor];
-		self.selectedBackgroundView.backgroundColor = [UIElements primaryColor];
+		self.selectionStyle = UITableViewCellSelectionStyleNone;
 		self.from = [UIElements chatFrom:@"friend"];
 		self.time = [UIElements chatTime:@"yesterday, 11:57pm"];
 		[self addSubview:self.from];
@@ -34,7 +34,6 @@
 	self.from.frame = timeFrame;
 	self.from.textAlignment = (self.from.textAlignment == UITextAlignmentLeft)?UITextAlignmentRight:UITextAlignmentLeft;
 	self.time.textAlignment = (self.time.textAlignment == UITextAlignmentRight)?UITextAlignmentLeft:UITextAlignmentRight;
-	self.message.textAlignment = (self.message.textAlignment == UITextAlignmentLeft)?UITextAlignmentRight:UITextAlignmentLeft;
 	self.right = !self.right;
 }
 ////Since this is a view not view controller we don't have a viewDidLoad method, we need to split set up between the initWithCoder method (called by the storyboard) and layoutSubviews
@@ -58,34 +57,42 @@
 //	return self;
 //}
 
+- (void)willTransitionToState:(UITableViewCellStateMask)state{
+    [super willTransitionToState:state];
+	
+
+}
+
 - (void) layoutSubviews
 {
     [super layoutSubviews];
 	
-//	//Set the labels to have the desired fonts / colors
-//	self.textLabel.font = font;
-//	self.textLabel.textColor = textColor;
-//	self.detailTextLabel.font = detailFont;
-//	self.detailTextLabel.textColor = textColor;
-//	//Set the detail label to be all uppercase
-//	self.detailTextLabel.text = [self.detailTextLabel.text uppercaseString];
-//	
-//	//Position the image view
-//    self.imageView.frame = CGRectMake( 10, 10, 40, 40 );
-//	
-//	accept.frame = CGRectMake(190, 0, 60, 60);
-//	reject.frame = CGRectMake(250, 0, 60, 60);
-//	
-//	//Adjust the position of the text labels (since the custom fonts are not the same size as the default font), in this case we ensure that the textLabel is never cut off by the detail text label
-//	CGRect f = self.textLabel.frame;
-//	self.textLabel.frame = CGRectMake( 70, f.origin.y+2, f.size.width, f.size.height );
-//	CGRect d = self.detailTextLabel.frame;
-//	CGFloat endf = 90+f.size.width;
-//	if (d.origin.x < endf)
-//		self.detailTextLabel.frame = CGRectMake( endf, d.origin.y+3, d.size.width-(endf-d.origin.x), d.size.height);
-//	else
-//		self.detailTextLabel.frame = CGRectMake( d.origin.x, d.origin.y+3, d.size.width, d.size.height);
-	
+
+	for (UIView *subview in [[self.subviews objectAtIndex:0] subviews])
+	{
+		if ([[subview subviews] count] > 0)
+		{
+			UIView *subview1 = [[subview subviews] objectAtIndex:0];
+			if ([NSStringFromClass([subview1 class]) isEqualToString:@"UITableViewCellDeleteConfirmationButton"]) {
+				//					subview1.frame = CGRectMake(subview1.frame.origin.x-20, subview1.frame.origin.y, subview1.frame.size.width, subview1.frame.size.height);
+				//					NSLog(@"yay");
+				//					subview1.backgroundColor = [UIElements primaryColor];
+				//					UILabel *label = [[subview1 subviews] objectAtIndex:0];
+				//					label.font = [UIFont fontWithName:@"AvenirNext-Bold" size:14];
+				//					label.text = @"delete";
+				//					label.textColor = [UIElements lightColor];
+				UIButton *b = [UIElements deleteButtonWithHeight:self.frame.size.height];
+				[b addTarget:self action:@selector(delete:) forControlEvents:UIControlEventTouchUpInside];
+				[subview addSubview:b];
+			}
+		}
+	}
+}
+
+-(void)delete:(id)sender
+{
+	if (self.deleteBlock)
+		self.deleteBlock();
 }
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated

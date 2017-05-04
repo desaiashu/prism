@@ -9,6 +9,8 @@
 #import "ChatViewController.h"
 #import "AppDelegate.h"
 #import "Security.h"
+#include <mach/mach_time.h>
+#include <stdint.h>
 
 @interface ChatViewController ()
 
@@ -29,31 +31,35 @@
     return self;
 }
 
-- (id)initWithFriend:(NSString*)friend
+- (id)initWithFriend:(NSString*)f andPubKey:(NSString*)p
 {
     self = [super init];
     if (self) {
         // Custom initialization
+		self.view.backgroundColor = [UIElements backgroundColor];
+		
 		//Initialize the array to empty
 		transcript = [[NSMutableArray alloc] init];
-		friendId = friend;
+		friendId = f;
+		friendPubKey = p;
 		[self.view addSubview:[UIElements header:friendId withBackButton:YES]];
 		tView = [UIElements tableView];
 		tView.delegate = self;
 		tView.dataSource = self;
 		[self.view addSubview:tView];
-		UIView *footer = [UIElements footer];
+		footer = [UIElements footer];
 		message = [UIElements footerTextInputField];
-		UIButton *sendButton = [UIElements sendButton];
-		[sendButton addTarget:self action:@selector(send) forControlEvents:UIControlEventTouchUpInside];
+		send = [UIElements sendButton];
+		[send addTarget:self action:@selector(send) forControlEvents:UIControlEventTouchUpInside];
 		[footer addSubview:message];
-		[footer addSubview:sendButton];
+		[footer addSubview:send];
 		[self.view addSubview:footer];
 		
 		//Set variables for text entry field
-		[message setReturnKeyType:UIReturnKeySend];
 		[message setKeyboardAppearance:UIKeyboardAppearanceAlert];
 		[message setDelegate:self];
+		
+		editing = FALSE;
 		
 		[Security addPeerPublicKey:friendId keyString:friendPubKey];
     }
@@ -91,6 +97,26 @@
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillHideNotification object:nil];
 }
 
+- (void)textViewDidChange:(UITextView *)textView
+{
+	if (textView.contentSize.height != textView.frame.size.height)
+	{
+		int oldHeight = textView.frame.size.height;
+		int newHeight = textView.contentSize.height;
+		if (newHeight < 36)
+			newHeight = 36;
+		if (newHeight > 36+tView.frame.size.height)
+			newHeight = 36+tView.frame.size.height;
+		int delta = newHeight - oldHeight;
+		if (delta != 0)
+		{
+			textView.frame = CGRectMake(textView.frame.origin.x, textView.frame.origin.y, textView.frame.size.width, textView.frame.size.height+delta);
+			send.frame = CGRectMake(send.frame.origin.x, send.frame.origin.y+delta, send.frame.size.width, send.frame.size.height);
+			footer.frame = CGRectMake(footer.frame.origin.x, footer.frame.origin.y-delta, footer.frame.size.width, footer.frame.size.height+delta);
+		}
+	}
+}
+
 - (IBAction)refresh:(id)sender
 {
 	//Hide Keyboard then reload chat, using button instead of pull to refresh because of layout of chat
@@ -114,11 +140,12 @@
 	transcript = t;
 	
 	//Decrypt messages
-	for (int i = 0; i < [transcript count]; i++)
-	{
+	//const uint64_t startTime = mach_absolute_time();
+	// Do some stuff that you want to time
+	dispatch_apply([transcript count], dispatch_get_global_queue(0, 0), ^(size_t i){
 		NSString *body = [[transcript objectAtIndex:i] objectForKey:@"message"];
 		NSArray *messageParts = [body componentsSeparatedByString:@"|"];
-	
+		
 		if ([[[transcript objectAtIndex:i] objectForKey:@"from"] isEqualToString:[user objectForKey:@"username"]])
 			body = [Security decryptRSA:[messageParts objectAtIndex:0]];
 		else
@@ -128,11 +155,27 @@
 			body = @"this message could not be decrypted";
 		
 		[[transcript objectAtIndex:i] setObject:body forKey:@"message"];
-	}
+    });
+//	const uint64_t endTime = mach_absolute_time();
+//	
+//	// Time elapsed in Mach time units.
+//	const uint64_t elapsedMTU = endTime - startTime;
+//	
+//	// Get information for converting from MTU to nanoseconds
+//	mach_timebase_info_data_t info;
+//	mach_timebase_info(&info);
+//		//handleErrorConditionIfYoureBeingCareful();
+//	
+//	// Get elapsed time in nanoseconds:
+//	double elapsedNS = (double)elapsedMTU * (double)info.numer / (double)info.denom;
+//	NSLog(@"%f", elapsedNS);
 	
 	[tView reloadData];
 	
-	[self scrollToBottom];
+	if (!editing)
+		[self scrollToBottom];
+	else
+		editing = FALSE;
 }
 
 - (void)scrollToBottom
@@ -170,14 +213,9 @@
 	if (t)
 	{
 		[message setText:@""];
+		[self performSelector:@selector(textViewDidChange:) withObject:message afterDelay:0.1];
 		[self reload:t];
 	}
-}
-
-//Method to send message when done is pressed
-- (BOOL)textFieldShouldReturn:(UITextField *)textField {
-	[self send];
-	return YES;
 }
 
 - (void)keyboardWillShow:(NSNotification *)notif {
@@ -187,7 +225,9 @@
 
 	int delta = 216; //Height of keyboard
 	
-	self.view.frame = CGRectMake(self.view.frame.origin.x, self.view.frame.origin.y, self.view.frame.size.width, self.view.frame.size.height-delta);
+//	self.view.frame = CGRectMake(self.view.frame.origin.x, self.view.frame.origin.y, self.view.frame.size.width, self.view.frame.size.height-delta);
+	tView.frame = CGRectMake(tView.frame.origin.x, tView.frame.origin.y, tView.frame.size.width, tView.frame.size.height-delta);
+	footer.frame = CGRectMake(footer.frame.origin.x, footer.frame.origin.y-delta, footer.frame.size.width, footer.frame.size.height);
 	
 	[UIView commitAnimations];
 	
@@ -214,7 +254,9 @@
 	else
 		delta = 162;
 	
-	self.view.frame = CGRectMake(self.view.frame.origin.x, self.view.frame.origin.y, self.view.frame.size.width, self.view.frame.size.height+delta);
+//	self.view.frame = CGRectMake(self.view.frame.origin.x, self.view.frame.origin.y, self.view.frame.size.width, self.view.frame.size.height+delta);
+	tView.frame = CGRectMake(tView.frame.origin.x, tView.frame.origin.y, tView.frame.size.width, tView.frame.size.height+delta);
+	footer.frame = CGRectMake(footer.frame.origin.x, footer.frame.origin.y+delta, footer.frame.size.width, footer.frame.size.height);
 	
 	[UIView commitAnimations];
 }
@@ -256,14 +298,21 @@
 	
 	if ([[[transcript objectAtIndex:indexPath.row] objectForKey:@"from"] isEqualToString:[user objectForKey:@"username"]])
 	{
+		cell.message.textAlignment = UITextAlignmentRight;
 		if (!cell.right)
 			[cell flip];
 	}
 	else
 	{
+		cell.message.textAlignment = UITextAlignmentLeft;
 		if (cell.right)
 			[cell flip];
 	}
+	
+	cell.deleteBlock = ^{
+		editing = TRUE;
+		[MGWU deleteMessageAtIndex:indexPath.row withFriend:friendId withCallback:@selector(reload:) onTarget:self];
+	};
 	
     return cell;
 }
@@ -274,13 +323,19 @@
 	return [UIElements heightForChatCell:body];
 }
 
-//When tableViewCell is tapped
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
+    // Return YES if you want the specified item to be editable.
+    return YES;
+}
+
+- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
 {
-	ChatTableViewCell *c = (ChatTableViewCell *)[tableView cellForRowAtIndexPath:indexPath];
-	//Remove highlight on selected cell
-	[tableView deselectRowAtIndexPath:indexPath animated:NO];
-	//[MGWU deleteMessageAtIndex:indexPath.row withFriend:friendId withCallback:@selector(reload:) onTarget:self];
+    if (editingStyle == UITableViewCellEditingStyleDelete)
+    {
+		editing = TRUE;
+        //add code here for when you hit delete
+		[MGWU deleteMessageAtIndex:indexPath.row withFriend:friendId withCallback:@selector(reload:) onTarget:self];
+    }
 }
 
 - (void)viewDidUnload

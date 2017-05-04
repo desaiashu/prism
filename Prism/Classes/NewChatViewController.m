@@ -24,16 +24,37 @@
     return self;
 }
 
+- (id)init
+{
+	self = [super init];
+    if (self) {
+        // Custom initialization
+		self.view.backgroundColor = [UIElements backgroundColor];
+		
+		[self.view addSubview:[UIElements header:@"new chat" withBackButton:YES]];
+		[self.view addSubview:[UIElements enterUsername]];
+		UIButton *b = [UIElements floatingButtonWithTitle:@"request to chat"];
+		[b addTarget:self action:@selector(newchat) forControlEvents:UIControlEventTouchUpInside];
+		[self.view addSubview:b];
+		UIButton *b2 = [UIElements footerButtonWithTitle:@"invite friends via sms"];
+		[b2 addTarget:self action:@selector(inviteFriend) forControlEvents:UIControlEventTouchUpInside];
+		[self.view addSubview:b2];
+		username = [UIElements centerTextInputField];
+		[self.view addSubview:username];
+		[username setReturnKeyType:UIReturnKeySend];
+		[username setKeyboardAppearance:UIKeyboardAppearanceAlert];
+		[username setKeyboardType:UIKeyboardTypeAlphabet];
+		[username setDelegate:self];
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textFieldChanged:) name:UITextFieldTextDidChangeNotification object:username];
+    }
+    return self;
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view.
-	
-	[username setReturnKeyType:UIReturnKeySend];
-	[username setKeyboardAppearance:UIKeyboardAppearanceAlert];
-	[username setKeyboardType:UIKeyboardTypeAlphabet];
-	[username setDelegate:self];
-	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textFieldChanged:) name:UITextFieldTextDidChangeNotification object:username];
+
 }
 
 - (IBAction)back:(id)sender
@@ -42,6 +63,30 @@
 }
 
 - (IBAction)go:(id)sender
+{
+	[self checkUsername];
+}
+
+- (void)inviteFriend
+{
+	if ([MFMessageComposeViewController canSendText])
+	{
+		MFMessageComposeViewController *controller = [[MFMessageComposeViewController alloc] init];
+		NSString *appstoreurl = @"whisper.desaiashu.com";
+		controller.body = [NSString stringWithFormat:@"download whisper (%@) to communicate securely with your friends. start a new chat with my username '%@'",  appstoreurl, [MGWU getUsername]];
+		controller.messageComposeDelegate = self;
+		controller.wantsFullScreenLayout = NO;
+		[self presentModalViewController:controller animated:YES];
+		[[UIApplication sharedApplication] setStatusBarHidden:YES];
+	}
+}
+
+- (void)messageComposeViewController:(MFMessageComposeViewController *)controller didFinishWithResult:(MessageComposeResult)result
+{
+	[self dismissModalViewControllerAnimated:YES];
+}
+
+- (void)newchat
 {
 	[self checkUsername];
 }
@@ -91,7 +136,7 @@
 	
 	[MGWU showMessage:@"You will be notified when your request to chat has been accepted" withImage:nil];
 	
-	[self.presentingViewController dismissModalViewControllerAnimated:YES];
+	[self.navigationController popViewControllerAnimated:YES];
 }
 
 - (void)didReceiveMemoryWarning

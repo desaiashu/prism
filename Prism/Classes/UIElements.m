@@ -28,6 +28,11 @@
 	return [UIColor colorWithRed:102.f/255.f green:171.f/255.f blue:197.f/255.f alpha:1.f];
 }
 
++(UIColor*)backgroundColor
+{
+	return DARK_SCHEME?[self darkColor]:[self lightColor];
+}
+
 +(CGFloat)height
 {
 	return [[UIScreen mainScreen] bounds].size.height;
@@ -102,7 +107,7 @@
 +(UILabel*)friendName:(NSString*)string
 {
 	CGSize size = CGSizeMake(250, 40);
-	UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(14, 14, size.width, size.height)];
+	UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(14, 17, size.width, size.height)];
 	label.text = string;
 	label.textAlignment = UITextAlignmentLeft;
 	label.font = [UIFont fontWithName:@"AvenirNext-Medium" size:24];
@@ -113,7 +118,7 @@
 +(UILabel*)friendStatus:(NSString*)string
 {
 	CGSize size = CGSizeMake(250, 20);
-	UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(14, 0, size.width, size.height)];
+	UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(14, 4, size.width, size.height)];
 	label.text = string;
 	label.textAlignment = UITextAlignmentLeft;
 	label.font = [UIFont fontWithName:@"AvenirNext-Heavy" size:10];
@@ -124,7 +129,7 @@
 +(UIView*)friendUnread:(int)number
 {
 	CGSize size = CGSizeMake(24, 24);
-	UIView *view = [[UIView alloc] initWithFrame:CGRectMake(275, 22, size.width, size.height)];
+	UIView *view = [[UIView alloc] initWithFrame:CGRectMake(275, 15, size.width, size.height)];
 	view.backgroundColor = [self primaryColor];
 	view.layer.cornerRadius = 5;
 	
@@ -145,7 +150,7 @@
 
 +(UITableView*)tableView
 {
-	CGRect rect = CGRectMake(0, 80, self.width, self.height-80-50);
+	CGRect rect = CGRectMake(0, 70, self.width, self.height-70-50);
 	UITableView *tableView = [[UITableView alloc] initWithFrame:rect];
 	tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
 	tableView.backgroundColor = [UIColor clearColor];
@@ -183,7 +188,7 @@
 +(UILabel*)chatFrom:(NSString*)string
 {
 	CGSize size = CGSizeMake((self.width-26)/2.f, 14);
-	UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(14, 0, size.width, size.height)];
+	UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(14, 20, size.width, size.height)];
 	label.text = string;
 	label.textAlignment = UITextAlignmentLeft;
 	label.font = [UIFont fontWithName:@"AvenirNext-Heavy" size:14];
@@ -194,7 +199,7 @@
 +(UILabel*)chatTime:(NSString*)string
 {
 	CGSize size = CGSizeMake((self.width-26)/2.f, 14);
-	UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(self.width/2.f, 0, size.width, size.height)];
+	UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(self.width/2.f, 20, size.width, size.height)];
 	label.text = string;
 	label.textAlignment = UITextAlignmentRight;
 	label.font = [UIFont fontWithName:@"AvenirNext-UltraLight" size:11];
@@ -206,14 +211,14 @@
 {
 	UIFont *font = [UIFont fontWithName:@"AvenirNext-DemiBold" size:12];
 	CGSize size = [string sizeWithFont:font constrainedToSize:CGSizeMake(self.width-28, self.height) lineBreakMode:UILineBreakModeWordWrap];
-	return size.height+30;
+	return size.height+60;
 }
 
 +(UILabel*)chatMessage:(NSString*)string
 {
 	UIFont *font = [UIFont fontWithName:@"AvenirNext-DemiBold" size:12];
 	CGSize size = [string sizeWithFont:font constrainedToSize:CGSizeMake(self.width-28, self.height) lineBreakMode:UILineBreakModeWordWrap];
-	UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(14, 20, self.width-28, size.height)];
+	UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(14, 40, self.width-28, size.height)];
 	label.text = string;
 	label.textAlignment = UITextAlignmentLeft;
 	label.lineBreakMode = UILineBreakModeWordWrap;
@@ -223,9 +228,21 @@
 	return label;
 }
 
-+(UIButton*)deleteButton
++(UIButton*)deleteButtonWithHeight:(float)height
 {
+	CGSize size = CGSizeMake(82, height);
 	
+	UIButton *button = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, size.width, size.height)];
+	[button setBackgroundImage:[self buttonImageWithSize:size cornerRadius:0 highlighted:NO] forState:UIControlStateNormal];
+	[button setBackgroundImage:[self buttonImageWithSize:size cornerRadius:0 highlighted:YES] forState:UIControlStateHighlighted];
+	
+	[button setTitle:@"delete" forState:UIControlStateNormal];
+	[[button titleLabel] setFont:[UIFont fontWithName:@"AvenirNext-Bold" size:16]];
+	[[button titleLabel] setAdjustsFontSizeToFitWidth:YES];
+	[button setTitleColor:[self lightColor] forState:UIControlStateNormal];
+	[button setTitleColor:[self primaryColor] forState:UIControlStateHighlighted];
+	
+	return button;
 }
 
 +(UIView*)statusBar
@@ -275,6 +292,22 @@
 	return textField;
 }
 
++(UITextView*)textInputView
+{
+	UITextView *textView = [[UITextView alloc] init];
+	textView.backgroundColor = [self lightColor];
+	textView.textColor = [self primaryColor];
+	[[UITextView appearance] setTintColor:[self primaryColor]];
+	textView.font = [UIFont fontWithName:@"AvenirNext-DemiBold" size:14];
+	textView.layer.cornerRadius = 8.0f;
+	if (!DARK_SCHEME)
+	{
+		textView.layer.borderColor = [self primaryColor].CGColor;
+		textView.layer.borderWidth = 2;
+	}
+	return textView;
+}
+
 +(UITextField*)centerTextInputField
 {
 	CGSize size = CGSizeMake(225, 36);
@@ -283,12 +316,12 @@
 	return textField;
 }
 
-+(UITextField*)footerTextInputField
++(UITextView*)footerTextInputField
 {
 	CGSize size = CGSizeMake(250, 36);
-	UITextField *textField = [self textInputField];
-	textField.frame = CGRectMake(7, 7, size.width, size.height);
-	return textField;
+	UITextView *textView = [self textInputView];
+	textView.frame = CGRectMake(7, 7, size.width, size.height);
+	return textView;
 }
 
 +(UILabel*)enterUsername
@@ -398,6 +431,8 @@
 	}
 	[button setTitleColor:[self lightColor] forState:UIControlStateNormal];
 	[button setTitleColor:[self primaryColor] forState:UIControlStateHighlighted];
+	
+	button.tag = number;
 	
 	return button;
 }

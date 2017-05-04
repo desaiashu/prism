@@ -12,6 +12,7 @@
 #import "FriendsTableViewCell.h"
 #import "ChatTableViewCell.h"
 #import "Security.h"
+#import "NewChatViewController.h"
 
 @interface GamesViewController ()
 
@@ -57,48 +58,15 @@
 	user = [userInfo objectForKey:@"info"];
 	games = [userInfo objectForKey:@"games"];
 	
-//	//Split up games based on whose turn it is / whether the game is over
-//	gamesCompleted = [[NSMutableArray alloc] init];
-//	gamesYourTurn = [[NSMutableArray alloc] init];
-//	gamesTheirTurn = [[NSMutableArray alloc] init];
-//	
-//	NSString *username = [user objectForKey:@"username"];
-//	
-//	int messages = 0;
-//	
-//	for (NSMutableDictionary *game in games)
-//	{
-//		NSString* gameState = [game objectForKey:@"gamestate"];
-//		NSString* turn = [game objectForKey:@"turn"];
-//		
-//		NSString* oppName;
-//		NSArray* gamers = [game objectForKey:@"players"];
-//		if ([[gamers objectAtIndex:0] isEqualToString:username])
-//			oppName = [gamers objectAtIndex:1];
-//		else
-//			oppName = [gamers objectAtIndex:0];
-//		
-//		if ([gameState isEqualToString:@"ended"])
-//		{
-//			[gamesCompleted addObject:game];
-//		}
-//		else if ([turn isEqualToString:[user objectForKey:@"username"]])
-//		{
-//			[gamesYourTurn addObject:game];
-//		}
-//		else
-//		{
-//			[gamesTheirTurn addObject:game];
-//		}
-//		
-//		messages += [[game objectForKey:@"newmessages"] intValue];
-//	}
-//	
-//	//Set badges on tab bar based on games that are your turn and new friends who are playing
-//	if (messages + [gamesYourTurn count] == 0)
-//		self.navigationController.tabBarItem.badgeValue = nil;
-//	else
-//		self.navigationController.tabBarItem.badgeValue = [NSString stringWithFormat:@"%d", messages + [gamesYourTurn count]];
+	[games sortUsingComparator:^NSComparisonResult(id a, id b) {
+		NSNumber *first = [(NSDictionary*)a objectForKey:@"datemessaged"];
+		if (!first)
+			first = [(NSDictionary*)a objectForKey:@"dateplayed"];
+		NSNumber *second = [(NSDictionary*)b objectForKey:@"datemessaged"];
+		if (!second)
+			second = [(NSDictionary*)b objectForKey:@"dateplayed"];
+		return [second compare:first];
+	}];
 	
 	//Reload all views, and stop all pull to refresh from happening
 	[tView reloadData];
@@ -292,6 +260,10 @@
 		cell.unread = nil;
 	}
 	
+	cell.deleteBlock = ^{
+		[MGWU deleteGame:[[game objectForKey:@"gameid"] intValue] withCallback:@selector(refresh) onTarget:self];
+	};
+	
     return cell;
 }
 
@@ -341,13 +313,26 @@
 	NSDictionary *game = [games objectAtIndex:indexPath.row];
 	FriendsTableViewCell *ftvc = (FriendsTableViewCell*)[tableView cellForRowAtIndexPath:indexPath];
 	
-	ChatViewController *cvc = [[ChatViewController alloc] initWithFriend:ftvc.name.text];
-	cvc.friendPubKey = [[game objectForKey:@"gamedata"] objectForKey:cvc.friendId];
+	ChatViewController *cvc = [[ChatViewController alloc] initWithFriend:ftvc.name.text andPubKey:[[game objectForKey:@"gamedata"] objectForKey:ftvc.name.text]];
 	
 	[self.navigationController pushViewController:cvc animated:YES];
 	
 	//Remove highlight on selected cell
 	[tableView deselectRowAtIndexPath:indexPath animated:NO];
+}
+
+- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
+    // Return YES if you want the specified item to be editable.
+    return YES;
+}
+
+- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if (editingStyle == UITableViewCellEditingStyleDelete)
+    {
+        //add code here for when you hit delete
+		[MGWU deleteGame:[[[games objectAtIndex:indexPath.row] objectForKey:@"gameid"] intValue] withCallback:@selector(reload:) onTarget:self];
+    }
 }
 
 -(void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender{
@@ -364,15 +349,23 @@
 	}
 }
 
+-(void)newChat
+{
+	NewChatViewController *ncvc = [[NewChatViewController alloc] init];
+	[self.navigationController pushViewController:ncvc animated:YES];
+}
+
 - (id)init
 {
 	self = [super init];
     if (self) {
         // Initialization code
+		self.view.backgroundColor = [UIElements backgroundColor];
+		
 		[self.view addSubview:[UIElements header:@"whisper" withBackButton:NO]];
 		
 		UIButton *new = [UIElements footerButtonWithTitle:@"new chat"];
-		[new addTarget:self action:@selector(newChat:) forControlEvents:UIControlEventTouchUpInside];
+		[new addTarget:self action:@selector(newChat) forControlEvents:UIControlEventTouchUpInside];
 		[self.view addSubview:new];
 		
 		tView = [UIElements tableView];

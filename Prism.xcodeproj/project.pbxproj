@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5406C5B8181B4B9F006EAF2A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5406C5B7181B4B9F006EAF2A /* Images.xcassets */; };
 		54116FAC15F3F4940030A081 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 54116FA915F3F4940030A081 /* CFNetwork.framework */; };
 		54116FAD15F3F4940030A081 /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 54116FAA15F3F4940030A081 /* CoreTelephony.framework */; };
 		54116FAE15F3F4940030A081 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 54116FAB15F3F4940030A081 /* SystemConfiguration.framework */; };
@@ -207,6 +208,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		5406C5B7181B4B9F006EAF2A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = Prism/Images.xcassets; sourceTree = SOURCE_ROOT; };
 		54116FA915F3F4940030A081 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 		54116FAA15F3F4940030A081 /* CoreTelephony.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreTelephony.framework; path = System/Library/Frameworks/CoreTelephony.framework; sourceTree = SDKROOT; };
 		54116FAB15F3F4940030A081 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
@@ -504,6 +506,7 @@
 				54F3AD3E17D698DE0056A978 /* Classes */,
 				54F3AD6917D698DE0056A978 /* en.lproj */,
 				54F3AD7217D698DE0056A978 /* Resources */,
+				5406C5B7181B4B9F006EAF2A /* Images.xcassets */,
 				54F3AD3A17D698DE0056A978 /* Supporting Files */,
 			);
 			name = Prism;
@@ -927,6 +930,7 @@
 				54F3ADFA17D698DE0056A978 /* Default-568h@2x.png in Resources */,
 				54F3ADFB17D698DE0056A978 /* Default.png in Resources */,
 				54A289D617D8138A00A5D77A /* Check.png in Resources */,
+				5406C5B8181B4B9F006EAF2A /* Images.xcassets in Resources */,
 				54CDDDB117EFD8AF000B8B4E /* MGWUBackgroundDark-Landscape@2x~ipad.png in Resources */,
 				54F3ADFC17D698DE0056A978 /* Default@2x.png in Resources */,
 				54F3ADFD17D698DE0056A978 /* Icon.png in Resources */,
@@ -1176,6 +1180,8 @@
 		547AB21115ADF09F00409815 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer: Jeremy Rossmann (4497S2CL2T)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Jeremy Rossmann (4497S2CL2T)";
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1198,6 +1204,8 @@
 		547AB21215ADF09F00409815 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Distribution: makegameswithus inc.";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: makegameswithus inc.";
 				FRAMEWORK_SEARCH_PATHS = (

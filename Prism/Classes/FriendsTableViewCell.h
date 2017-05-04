@@ -8,11 +8,14 @@
 
 #import <UIKit/UIKit.h>
 
+typedef void(^DeleteBlock)(void);
+
 //Our custom tableViewCell
 @interface FriendsTableViewCell : UITableViewCell
 
 @property UILabel *name, *status;
 @property UIView *unread;
 @property UIButton *accept, *reject;
+@property (nonatomic, copy) DeleteBlock deleteBlock;
 
 @end

@@ -7,8 +7,9 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <MessageUI/MessageUI.h>
 
-@interface NewChatViewController : UIViewController <UITextFieldDelegate>
+@interface NewChatViewController : UIViewController <UITextFieldDelegate, MFMessageComposeViewControllerDelegate>
 {
 	IBOutlet UITextField *username;
 }

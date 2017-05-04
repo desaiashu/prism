@@ -10,6 +10,7 @@
 #import "TabBarController.h"
 #import "ChatViewController.h"
 #import "Security.h"
+#import "PasscodeViewController.h"
 
 @implementation AppDelegate
 
@@ -28,7 +29,7 @@ BOOL noPush;
 	
 	//Set up window/root view controller
 	self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-    self.window.backgroundColor = [UIElements darkColor];
+    self.window.backgroundColor = [UIElements backgroundColor];
     [self.window makeKeyAndVisible];
 	
 	//[self.window addSubview:[UIElements statusBar]];
@@ -91,9 +92,9 @@ BOOL noPush;
 	
 //	[self.window addSubview:[UIElements about]];
 	
-	UINavigationController *nc = [[UINavigationController alloc] init];
-	self.window.rootViewController = nc;
-	nc.navigationBarHidden = TRUE;
+	self.navController = [[UINavigationController alloc] init];
+	self.window.rootViewController = self.navController;
+	self.navController.navigationBarHidden = TRUE;
 	
 	//Setup MGWU SDK
 	[MGWU loadMGWU:@"pr1v4t33ncrypt3dch4t"];
@@ -124,9 +125,10 @@ BOOL noPush;
 	{
 		//enter passcode
 		GamesViewController *g = [[GamesViewController alloc] init];
-		[nc pushViewController:g animated:NO];
+		[self.navController pushViewController:g animated:NO];
+		[self.navController.topViewController presentModalViewController:[[PasscodeViewController alloc] init] animated:NO];
 	}
-	
+
 	//To flag whether push notifications are disabled
 	noPush = FALSE;
 	
@@ -208,12 +210,17 @@ BOOL noPush;
 {
 	// Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later. 
 	// If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
+	if ([MGWU getUsername])
+	{
+		[self.navController popToRootViewControllerAnimated:NO];
+		[self.navController.topViewController dismissModalViewControllerAnimated:NO];
+		[self.navController.topViewController presentModalViewController:[[PasscodeViewController alloc] init] animated:NO];
+	}
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application
 {
 	// Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
-	
 //	//When the app is launched from the background, refresh the current view
 //	UINavigationController *nc = (UINavigationController*) self.window.rootViewController;
 //	UIViewController *vc = nc.topViewController;

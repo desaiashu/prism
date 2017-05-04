@@ -19,5 +19,6 @@ extern NSMutableDictionary *user;
 extern BOOL noPush;
 
 @property (strong, nonatomic) UIWindow *window;
+@property (strong, nonatomic) UINavigationController *navController;
 
 @end
